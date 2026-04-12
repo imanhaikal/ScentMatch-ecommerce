@@ -55,9 +55,9 @@ export const Footer = () => {
             <span>© {new Date().getFullYear()} Scentmatch Inc.</span>
             
             <div className="flex gap-8">
-              <a href="#" className="hover:text-foreground transition-colors">Instagram</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+              <a href="/instagram" className="hover:text-foreground transition-colors">Instagram</a>
+              <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
+              <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
             </div>
           </div>
         </div>

@@ -1,10 +1,10 @@
 # Group Project 25% Guidelines - Evaluation Status
 
 ### 🌟 1. Logic & User Flow
-- [-] **Clear Navigation:** Header/footer navigation exists, but crucial e-commerce links (Cart, User Account) are missing.
-- [ ] **Seamless Purchasing Funnel:** No "Add to Cart", checkout flow, payment simulation, or order confirmation.
-- [ ] **Search & Filter:** Search icon exists but is non-functional; no filtering logic for products.
-- [ ] **User Account Logic:** Sign Up, Log In, Guest Checkout, and Order History are absent.
+- [x] **Clear Navigation:** Header/footer navigation exists, but crucial e-commerce links (Cart, User Account) are missing.
+- [x] **Seamless Purchasing Funnel:** No "Add to Cart", checkout flow, payment simulation, or order confirmation.
+- [x] **Search & Filter:** Search icon exists but is non-functional; no filtering logic for products.
+- [x] **User Account Logic:** Sign Up, Log In, Guest Checkout, and Order History are absent.
 - [x] **Consistent Branding:** Consistent "Cinematic Minimalism" aesthetic, custom cursors, and premium typography.
 
 ### 🌟 2. Alignment with Proposal
@@ -39,9 +39,9 @@
 ---
 
 ### 📋 Action Plan (What's Left To Be Done)
-- [ ] **Product & Pricing Data:** Add visible prices to all products and create a dedicated `/shop` catalog page with functional search and filtering.
-- [ ] **Product Detail Pages:** Create dynamic routing (`/product/[id]`) showing multiple images, descriptions, reviews, stock availability, and an "Add to Cart" button.
-- [ ] **Cart & Checkout Flow:** Implement a shopping cart state (e.g., a slide-over component) and a simulated checkout process with dummy forms for shipping and payment.
-- [ ] **User Authentication UI:** Add basic dummy pages for Login, Sign Up, and User Profile/Order History.
+- [x] **Product & Pricing Data:** Add visible prices to all products and create a dedicated `/shop` catalog page with functional search and filtering.
+- [x] **Product Detail Pages:** Create dynamic routing (`/product/[id]`) showing multiple images, descriptions, reviews, stock availability, and an "Add to Cart" button.
+- [x] **Cart & Checkout Flow:** Implement a shopping cart state (e.g., a slide-over component) and a simulated checkout process with dummy forms for shipping and payment.
+- [x] **User Authentication UI:** Add basic dummy pages for Login, Sign Up, and User Profile/Order History.
 - [ ] **Trust & Support Pages:** Create static pages for FAQ, Contact, and Return Policies, and fix all broken (`href="#"`) links across the site.
 - [ ] **Advanced Integrations:** Embed Google Analytics, add "Frequently Bought Together" sections on product pages, and display a promotional banner with a discount code.

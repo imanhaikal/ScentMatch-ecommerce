@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll, CustomCursor, Noise, MouseSpotlight } from "@/components/PremiumUI";
+import { CartDrawer } from "@/components/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
         <SmoothScroll>
           <CustomCursor />
           <Noise />
+          <CartDrawer />
           {children}
         </SmoothScroll>
       </body>

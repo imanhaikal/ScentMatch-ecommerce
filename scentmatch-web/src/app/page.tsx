@@ -2,9 +2,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
-import { Sparkles, X, Menu, Search, ArrowUpRight } from "lucide-react";
+import { Sparkles, X, Menu, Search, ArrowUpRight, Plus } from "lucide-react";
 import { MagneticButton, SplitText, InfiniteMarquee, TiltCard } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
+import { useCartStore } from "@/store/useCartStore";
+import { PRODUCTS } from "@/data/products";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // -- ANIMATION VARIANTS --
 const revealVariants = {
@@ -41,6 +45,8 @@ const PrimaryButton = ({ children, onClick, className = "" }: { children: React.
 // Navigation
 const Navigation = ({ onQuizStart }: { onQuizStart: () => void }) => {
   const [scrolled, setScrolled] = useState(false);
+  const { openCart, items } = useCartStore();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -48,19 +54,29 @@ const Navigation = ({ onQuizStart }: { onQuizStart: () => void }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 flex items-center justify-between px-8 md:px-16 py-6 ${
         scrolled ? "bg-background/50 backdrop-blur-xl border-b border-white/5" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="flex items-center gap-2 cursor-pointer z-50">
+      <Link href="/" className="flex items-center gap-2 cursor-pointer z-50">
         <h2 className="text-2xl md:text-3xl font-cormorant font-bold leading-none tracking-tighter uppercase text-foreground ml-[-0.05em]">
           Scentmatch
         </h2>
-      </div>
+      </Link>
       <nav className="hidden md:flex items-center gap-12 absolute left-1/2 -translate-x-1/2">
-        {["Collection", "Artisans", "Journal"].map((item) => (
+        <Link href="/shop">
+          <MagneticButton className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
+            <span className="relative overflow-hidden flex flex-col">
+              <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">Collection</span>
+              <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">Collection</span>
+            </span>
+          </MagneticButton>
+        </Link>
+        {["Artisans", "Journal"].map((item) => (
           <MagneticButton key={item} className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
             <span className="relative overflow-hidden flex flex-col">
               <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item}</span>
@@ -69,8 +85,25 @@ const Navigation = ({ onQuizStart }: { onQuizStart: () => void }) => {
           </MagneticButton>
         ))}
       </nav>
-      <div className="flex items-center gap-8">
-        <button className="text-foreground hover:opacity-50 transition-opacity">
+      <div className="flex items-center gap-6 z-50">
+        <button onClick={() => router.push("/shop?search=true")} className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2">
+          <Search className="w-4 h-4" />
+        </button>
+        <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
+          <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
+        </Link>
+        <button 
+          onClick={openCart}
+          className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2"
+        >
+          <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
+          {totalItems > 0 && (
+            <span className="bg-foreground text-background text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+              {totalItems}
+            </span>
+          )}
+        </button>
+        <button className="text-foreground hover:opacity-50 transition-opacity ml-2">
           <Menu className="w-6 h-6" />
         </button>
       </div>
@@ -322,13 +355,16 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
 };
 
 // Asymmetrical Product Cards Section
-const PRODUCTS = [
-  { id: 1, name: "Santal Vol. 1", artisan: "Le Labo", img: "/santal-vol-1.jpg", notes: { top: "Cardamom", heart: "Iris", base: "Sandalwood" }, offset: "md:mt-0", height: "h-[70vh]" },
-  { id: 2, name: "Oud Noir", artisan: "In-House", img: "/oud-noir.jpg", notes: { top: "Rose", heart: "Patchouli", base: "Agarwood" }, offset: "md:mt-32", height: "h-[85vh]" },
-  { id: 3, name: "Vetiver Bloom", artisan: "Artisan Co.", img: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?q=80&w=800&auto=format&fit=crop", notes: { top: "Citrus", heart: "Vetiver", base: "Cedar" }, offset: "md:mt-16", height: "h-[65vh]" },
-];
-
 const ProductSection = () => {
+  const { addItem } = useCartStore();
+  const router = useRouter();
+
+  const featuredProducts = PRODUCTS.slice(0, 3).map((p, i) => ({
+    ...p,
+    offset: i === 0 ? "md:mt-0" : i === 1 ? "md:mt-32" : "md:mt-16",
+    height: i === 0 ? "h-[70vh]" : i === 1 ? "h-[85vh]" : "h-[65vh]"
+  }));
+
   return (
     <section className="bg-background py-40 px-8 md:px-16 relative z-10">
       <div className="max-w-[90rem] mx-auto">
@@ -339,13 +375,13 @@ const ProductSection = () => {
               Featured Extracts
             </h2>
           </div>
-          <MagneticButton className="text-foreground text-xs uppercase tracking-[0.2em] border-b border-white/30 hover:border-foreground pb-1 transition-colors">
+          <MagneticButton onClick={() => router.push("/shop")} className="text-foreground text-xs uppercase tracking-[0.2em] border-b border-white/30 hover:border-foreground pb-1 transition-colors">
             View the Gallery
           </MagneticButton>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
-          {PRODUCTS.map((prod) => (
+          {featuredProducts.map((prod) => (
             <motion.div 
               key={prod.id} 
               initial={{ opacity: 0, y: 100 }}
@@ -356,12 +392,14 @@ const ProductSection = () => {
             >
               <TiltCard className="w-full rounded-none">
                 <div className={`relative w-full ${prod.height} overflow-hidden bg-surface group`}>
-                  <img
-                    src={prod.img}
-                    alt={prod.name}
-                    className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-1000 ease-[0.76,0,0.24,1]"
-                    loading="lazy"
-                  />
+                  <Link href={`/product/${prod.id}`}>
+                    <img
+                      src={prod.images[0]}
+                      alt={prod.name}
+                      className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-1000 ease-[0.76,0,0.24,1] cursor-pointer"
+                      loading="lazy"
+                    />
+                  </Link>
                   
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-background/20 group-hover:bg-transparent transition-colors duration-1000" />
@@ -384,12 +422,24 @@ const ProductSection = () => {
               </TiltCard>
               
               <div className="pt-8 flex justify-between items-start group">
-                <div>
-                  <h3 className="text-foreground text-3xl font-cormorant mb-2 group-hover:italic transition-all duration-500">{prod.name}</h3>
-                  <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">{prod.artisan}</p>
-                </div>
-                <MagneticButton className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors duration-500">
-                  <ArrowUpRight className="w-4 h-4" />
+                <Link href={`/product/${prod.id}`}>
+                  <div>
+                    <h3 className="text-foreground text-3xl font-cormorant mb-2 group-hover:italic transition-all duration-500 cursor-pointer">{prod.name}</h3>
+                    <div className="flex gap-4 items-center cursor-pointer">
+                      <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">{prod.artisan}</p>
+                      <span className="w-1 h-1 rounded-full bg-white/20" />
+                      <p className="text-foreground font-sans text-[10px] tracking-widest">${prod.price}</p>
+                    </div>
+                  </div>
+                </Link>
+                <MagneticButton
+                  onClick={() => {
+                    addItem({ id: prod.id, name: prod.name, artisan: prod.artisan, price: prod.price, image: prod.images[0], notes: prod.notes });
+                    useCartStore.getState().openCart();
+                  }}
+                  className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors duration-500 z-10 relative"
+                >
+                  <Plus className="w-4 h-4" />
                 </MagneticButton>
               </div>
             </motion.div>
