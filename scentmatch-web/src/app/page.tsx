@@ -96,8 +96,8 @@ const Hero = ({ onQuizStart }: { onQuizStart: () => void }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-black/20 to-transparent z-20" />
         <motion.img
           style={{ y, scale }}
-          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=3544&auto=format&fit=crop"
-          alt="Space Earth Hero"
+          src="/hero-bg2.jpg"
+          alt="ScentMatch Hero"
           className="absolute inset-0 w-full h-full object-cover opacity-90 origin-bottom z-0"
           fetchPriority="high"
         />
@@ -322,8 +322,8 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
 
 // Asymmetrical Product Cards Section
 const PRODUCTS = [
-  { id: 1, name: "Santal Vol. 1", artisan: "Le Labo", img: "https://images.unsplash.com/photo-1599305090598-fe179d501227?q=80&w=800&auto=format&fit=crop", notes: { top: "Cardamom", heart: "Iris", base: "Sandalwood" }, offset: "md:mt-0", height: "h-[70vh]" },
-  { id: 2, name: "Oud Noir", artisan: "In-House", img: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?q=80&w=800&auto=format&fit=crop", notes: { top: "Rose", heart: "Patchouli", base: "Agarwood" }, offset: "md:mt-32", height: "h-[85vh]" },
+  { id: 1, name: "Santal Vol. 1", artisan: "Le Labo", img: "/santal-vol-1.jpg", notes: { top: "Cardamom", heart: "Iris", base: "Sandalwood" }, offset: "md:mt-0", height: "h-[70vh]" },
+  { id: 2, name: "Oud Noir", artisan: "In-House", img: "/oud-noir.jpg", notes: { top: "Rose", heart: "Patchouli", base: "Agarwood" }, offset: "md:mt-32", height: "h-[85vh]" },
   { id: 3, name: "Vetiver Bloom", artisan: "Artisan Co.", img: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?q=80&w=800&auto=format&fit=crop", notes: { top: "Citrus", heart: "Vetiver", base: "Cedar" }, offset: "md:mt-16", height: "h-[65vh]" },
 ];
 
