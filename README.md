@@ -43,7 +43,8 @@ ScentMatch employs a **Decoupled Headless Architecture** to combine peak fronten
 ### Frontend Layer (`/scentmatch-web`)
 * **Framework:** Next.js (React 19) using the App Router.
 * **Styling:** Tailwind CSS and Framer Motion for hardware-accelerated animations and micro-interactions.
-* **State Management:** React Context / Zustand for the complex Quiz state machine.
+* **State Management:** Zustand for global cart state (`useCartStore.ts`) and complex Quiz state machine.
+* **Data Management:** Centralized local module (`src/data/products.ts`) acting as the Single Source of Truth (SSOT) for product definitions and pricing.
 
 ### Backend E-Commerce Engine
 * **Platform:** Headless WooCommerce (WordPress).
@@ -66,9 +67,9 @@ Guided by the **"Cinematic Minimalism"** and **ULTRATHINK** protocols:
 Following **Feature-Driven Development (FDD)**, the project is structured into 6 phases:
 
 * **Phase 1: Foundation & Architecture** - ✅ *Completed* (Landing page, shared UI, Next.js scaffolding).
-* **Phase 2: Core E-Commerce** - ⏳ *In Progress* (Catalog grid, product pages, secure checkout).
+* **Phase 2: Core E-Commerce** - ✅ *Completed* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer, Zustand cart state, dummy checkout flow).
 * **Phase 3: The ScentMatch Engine** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Quiz UI, Match results, State persistence).
-* **Phase 4: User Authentication** - ⏳ *Pending* (Customer portal, order tracking, feedback loop).
+* **Phase 4: User Authentication** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, simulated `/account` dashboard and order history).
 * **Phase 5: Vendor Aggregator (B2B)** - ⏳ *Pending* (Onboarding, product mapping, commission tracking).
 * **Phase 6: Polish & Testing** - ⏳ *Pending* (WCAG audit, full-funnel E2E testing).
 

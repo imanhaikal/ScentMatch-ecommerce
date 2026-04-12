@@ -35,12 +35,34 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 * **Accessibility:** Implements `prefers-reduced-motion` fallbacks. Custom silver focus rings (`:focus-visible`) replace standard browser outlines to preserve cinematic immersion without sacrificing a11y.
 
 ### 2.4 State Management
+* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, and simulate checkout processes without prop drilling.
 * **Quiz State:** Managed via isolated context (Zustand or React Context) ensuring the multi-step quiz avoids triggering cascading Virtual DOM updates.
 * **Persistence:** Mid-quiz progress synced to `sessionStorage` to recover states seamlessly upon accidental browser reloads.
 
 ---
 
-## 3. Backend Integrations & API Contracts
+## 3. Project Structure
+
+The Next.js App Router codebase (`/scentmatch-web/src`) follows a feature-based structure to ensure clear separation of concerns and maintainability.
+
+### Key Directories & Files
+* **`app/`**: Contains route definitions and layouts.
+  * `page.tsx`: The cinematic landing page and entry point.
+  * `shop/page.tsx`: The primary product catalog featuring category/scent filtering.
+  * `product/[id]/page.tsx`: Dynamic product details pages displaying olfactive pyramids and stock state.
+  * `login/page.tsx`, `signup/page.tsx`: Minimalist authentication pages (UI only).
+  * `account/page.tsx`: Simulated user dashboard for profiles and order history.
+* **`components/`**: Reusable React elements (Atoms, Molecules, Organisms).
+  * `PremiumUI.tsx`: Shared UI atoms like `MagneticButton` and `AnimatedText`.
+  * `CartDrawer.tsx`: Framer-motion powered slide-out shopping cart for seamless user checkout interactions.
+* **`store/`**: Global state management definitions.
+  * `useCartStore.ts`: Zustand store managing cart items, quantities, and drawer visibility.
+* **`data/`**: Centralized, local mock data and constants.
+  * `products.ts`: Acts as the Single Source of Truth (SSOT) for product definitions, categorizations, and pricing.
+
+---
+
+## 4. Backend Integrations & API Contracts
 
 The Next.js frontend interacts with the WooCommerce headless backend using standard REST or GraphQL endpoints.
 
@@ -57,7 +79,7 @@ The Next.js frontend interacts with the WooCommerce headless backend using stand
 
 ---
 
-## 4. Database Schema
+## 5. Database Schema
 
 Key entities mapped within the WooCommerce backend to support the distinct ScentMatch feature set:
 
@@ -87,7 +109,7 @@ Key entities mapped within the WooCommerce backend to support the distinct Scent
 
 ---
 
-## 5. Deployment Instructions
+## 6. Deployment Instructions
 
 ### Frontend (Next.js via Vercel)
 1. Link the `scentmatch-web` directory to a Vercel project.

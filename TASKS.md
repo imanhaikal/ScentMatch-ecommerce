@@ -7,19 +7,19 @@ This document outlines the chronological phases and specific, actionable tasks r
 
 - [x] **Landing Page Implementation:** Build the immersive hero section, infinite marquee, and product showcase adhering to the "Cinematic Minimalism" design.
 - [x] **Shared UI Components:** Expand `src/components/PremiumUI.tsx` with reusable atoms (MagneticButtons, SplitText, TiltCards) adhering to the "Cinematic Minimalism" aesthetic.
-- [ ] **State Management Setup:** Initialize Zustand or React Context for global state (Shopping Cart, User Session, Quiz State).
+- [x] **State Management Setup:** Initialize Zustand or React Context for global state (Shopping Cart, User Session, Quiz State).
 - [ ] **API Client Configuration:** Set up Axios or native Fetch wrapper for WooCommerce headless API communication (GraphQL/REST).
 - [ ] **Analytics Integration:** Integrate Google Analytics 4 (GA4) to track specific custom events (Quiz Started, Quiz Completed, Add to Cart, Purchase).
-- [ ] **Routing Structure:** Scaffold Next.js App Router folders for `/shop`, `/product/[id]`, `/checkout`, `/account`, and `/vendor`.
+- [x] **Routing Structure:** Scaffold Next.js App Router folders for `/shop`, `/product/[id]`, `/checkout`, `/account`, and `/vendor`.
 
 ## Phase 2: Core E-Commerce (B2C Catalog & Cart)
 *Objective: Deliver standard e-commerce functionality with premium visual fidelity.*
 
 - [x] **Product Catalog Showcase:** Build a grid layout for featured products, featuring dark mode optimization, aspect-ratio locked images, and artisan tags.
-- [ ] **Product Catalog Page (`/shop`):** Expand product grid layout for the full catalog with filtering and pagination.
-- [ ] **Product Details Page (`/product/[id]`):** Create the immersive product view displaying Top, Heart, and Base notes, price, and "Add to Cart" functionality.
-- [ ] **Shopping Cart Slide-out:** Implement a non-intrusive cart drawer/modal allowing users to add/remove items, view subtotal, and proceed to checkout.
-- [ ] **Secure Checkout Flow (`/checkout`):** Build the multi-step checkout form (Shipping, Billing, Payment) and integrate a payment gateway tokenization component (e.g., Stripe or FPX).
+- [x] **Product Catalog Page (`/shop`):** Expand product grid layout for the full catalog with filtering and pagination.
+- [x] **Product Details Page (`/product/[id]`):** Create the immersive product view displaying Top, Heart, and Base notes, price, and "Add to Cart" functionality.
+- [x] **Shopping Cart Slide-out:** Implement a non-intrusive cart drawer/modal allowing users to add/remove items, view subtotal, and proceed to checkout.
+- [x] **Secure Checkout Flow (`/checkout`):** Build the multi-step checkout form (Shipping, Billing, Payment) and integrate a payment gateway tokenization component (e.g., Stripe or FPX).
 - [ ] **Order Confirmation:** Create the `/checkout/success` page and hook into WooCommerce for automated confirmation emails.
 
 ## Phase 3: The ScentMatch Engine (Core Logic)
@@ -34,8 +34,8 @@ This document outlines the chronological phases and specific, actionable tasks r
 ## Phase 4: User Authentication & Customer Portal
 *Objective: Enable personalized experiences, order tracking, and algorithm refinement.*
 
-- [ ] **Authentication Flow:** Build the Login and Registration modals/pages securely interfacing with the backend auth system.
-- [ ] **Customer Dashboard (`/account`):** Create the secure area for users to view order history, tracking status, and their saved Scent Profile.
+- [x] **Authentication Flow:** Build the Login and Registration modals/pages securely interfacing with the backend auth system.
+- [x] **Customer Dashboard (`/account`):** Create the secure area for users to view order history, tracking status, and their saved Scent Profile.
 - [ ] **Post-Purchase Feedback UI:** Design and implement the 14-day post-delivery feedback module (1-5 star rating) to collect data for algorithm weight adjustment.
 
 ## Phase 5: Vendor Aggregator Portal (B2B)
