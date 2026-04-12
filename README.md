@@ -82,7 +82,7 @@ Following **Feature-Driven Development (FDD)**, the project is structured into 6
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/imanhaikal/ScentMatch-ecommerce.git
 
 # Navigate to the frontend workspace
 cd scentmatch-web
