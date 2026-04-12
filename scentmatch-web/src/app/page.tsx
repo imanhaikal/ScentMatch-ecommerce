@@ -1,0 +1,418 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
+import { Sparkles, X, Menu, Search, ArrowUpRight } from "lucide-react";
+import { MagneticButton, SplitText, InfiniteMarquee, TiltCard } from "@/components/PremiumUI";
+
+// -- ANIMATION VARIANTS --
+const revealVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] as const }
+  },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+// -- COMPONENTS --
+
+// Primary Button
+const PrimaryButton = ({ children, onClick, className = "" }: { children: React.ReactNode; onClick?: () => void; className?: string }) => (
+  <MagneticButton onClick={onClick} className={`group relative bg-white text-black overflow-hidden uppercase tracking-widest px-10 py-5 font-sans text-xs font-bold flex items-center justify-center gap-4 ${className}`}>
+    <span className="absolute inset-0 w-full h-full bg-[#111] origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
+    <span className="relative z-10 group-hover:text-white transition-colors duration-500 flex items-center gap-4">
+      {children}
+    </span>
+  </MagneticButton>
+);
+
+// Navigation
+const Navigation = ({ onQuizStart }: { onQuizStart: () => void }) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 flex items-center justify-between px-8 py-6 ${
+        scrolled ? "bg-black/50 backdrop-blur-xl border-b border-white/5" : "bg-transparent border-b border-transparent"
+      }`}
+    >
+      <div className="flex items-center gap-2 cursor-pointer z-50">
+        <span className="text-xl font-sans font-bold tracking-widest text-white uppercase">
+          Scentmatch
+        </span>
+      </div>
+      <nav className="hidden md:flex items-center gap-12 absolute left-1/2 -translate-x-1/2">
+        {["Collection", "Artisans", "Journal"].map((item) => (
+          <MagneticButton key={item} className="text-white text-xs uppercase tracking-widest font-sans font-medium group">
+            <span className="relative overflow-hidden flex flex-col">
+              <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item}</span>
+              <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item}</span>
+            </span>
+          </MagneticButton>
+        ))}
+      </nav>
+      <div className="flex items-center gap-8">
+        <button className="text-white hover:opacity-50 transition-opacity">
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+    </header>
+  );
+};
+
+// Hero Section
+const Hero = ({ onQuizStart }: { onQuizStart: () => void }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1.05, 1.25]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+
+  return (
+    <section ref={ref} className="relative w-full h-screen flex flex-col justify-end pb-24 px-8 md:px-16 overflow-hidden bg-transparent">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-black/50 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-black/20 to-transparent z-20" />
+        <motion.img
+          style={{ y, scale }}
+          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=3544&auto=format&fit=crop"
+          alt="Space Earth Hero"
+          className="absolute inset-0 w-full h-full object-cover opacity-90 origin-bottom z-0"
+          fetchPriority="high"
+        />
+      </div>
+
+      <motion.div style={{ opacity }} className="relative z-30 w-full max-w-7xl">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="flex flex-col items-start"
+        >
+          <motion.div variants={revealVariants} className="overflow-hidden mb-6">
+            <span className="text-[#A0A0A0] font-sans uppercase tracking-[0.3em] text-[10px] font-semibold">
+              The Digital Sommelier
+            </span>
+          </motion.div>
+          
+          <div className="mb-8 flex flex-col">
+            <h1 className="font-sans text-6xl md:text-[8vw] font-bold text-white tracking-tighter leading-[0.9] uppercase overflow-hidden">
+              <SplitText text="Eliminate The" />
+            </h1>
+            <h1 className="font-sans text-6xl md:text-[8vw] font-bold text-white tracking-tighter leading-[0.9] uppercase overflow-hidden mt-2">
+              <SplitText text="Blind-Buy Gamble" delay={0.2} />
+            </h1>
+          </div>
+
+          <motion.div variants={revealVariants} className="mb-12 max-w-lg">
+            <p className="text-[#D0D0D0] font-sans text-sm md:text-base leading-relaxed tracking-wide">
+              Discover fragrances matched to your precise psychological profile and aesthetic preferences using our highly accurate algorithm. An olfactive journey tailored to your soul.
+            </p>
+          </motion.div>
+
+          <motion.div variants={revealVariants}>
+            <PrimaryButton onClick={onQuizStart}>
+              Take the Scent Quiz <ArrowUpRight className="w-4 h-4" />
+            </PrimaryButton>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+};
+
+// Scent Quiz State Machine
+const QUIZ_STEPS = [
+  {
+    id: "environment",
+    question: "Which environment centers your being?",
+    options: ["Woodland Cabin", "Ocean Breeze", "Midnight Library", "Botanical Garden"],
+  },
+  {
+    id: "aesthetic",
+    question: "Select your daily aesthetic.",
+    options: ["Minimalist & Sharp", "Vintage & Warm", "Avant-Garde", "Classic Elegance"],
+  },
+  {
+    id: "intensity",
+    question: "How do you want to be perceived?",
+    options: ["Mysterious", "Approachable", "Commanding", "Ethereal"],
+  }
+];
+
+const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<"match" | "zero" | null>(null);
+
+  const handleSelect = (option: string) => {
+    setAnswers({ ...answers, [QUIZ_STEPS[step].id]: option });
+    if (step < QUIZ_STEPS.length - 1) {
+      setStep(step + 1);
+    } else {
+      setAnalyzing(true);
+      setTimeout(() => {
+        setAnalyzing(false);
+        if (answers["environment"] === "Ocean Breeze" && option === "Avant-Garde") {
+          setResult("zero");
+        } else {
+          setResult("match");
+        }
+      }, 3500);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#080808]/90 backdrop-blur-3xl"
+    >
+      <MagneticButton onClick={onClose} className="absolute top-8 right-8 text-[#F5F5F5] opacity-50 hover:opacity-100 transition-opacity">
+        <X size={28} strokeWidth={1} />
+      </MagneticButton>
+
+      <div className="w-full max-w-4xl px-8 relative" aria-live="polite">
+        <AnimatePresence mode="wait">
+          {!analyzing && !result && (
+            <motion.div
+              key={`step-${step}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
+              transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+              className="flex flex-col"
+            >
+              <span className="text-[#8A8A8A] font-sans uppercase tracking-[0.3em] mb-12 text-[10px] flex items-center gap-4">
+                <span className="w-8 h-[1px] bg-[#8A8A8A]"></span> Phase {step + 1} of {QUIZ_STEPS.length}
+              </span>
+              <h2 className="text-4xl md:text-6xl font-cormorant font-light text-[#F5F5F5] mb-20 leading-tight">
+                {QUIZ_STEPS[step].question}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1A1A1A] p-px w-full">
+                {QUIZ_STEPS[step].options.map((opt, i) => (
+                  <button
+                    key={opt}
+                    onClick={() => handleSelect(opt)}
+                    className="bg-[#080808] text-[#F5F5F5] p-12 text-lg md:text-2xl font-cormorant font-light transition-all duration-700 ease-[0.76,0,0.24,1] flex items-center justify-between group hover:bg-[#F5F5F5] hover:text-[#080808] relative overflow-hidden"
+                  >
+                    <span className="relative z-10">{opt}</span>
+                    <ArrowUpRight className="w-6 h-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-700 ease-[0.76,0,0.24,1] relative z-10" strokeWidth={1} />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {analyzing && (
+            <motion.div
+              key="analyzing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center text-center py-20"
+            >
+              <div className="relative w-32 h-32 mb-12 flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                  className="absolute inset-0 border border-t-[rgba(255,255,255,0.8)] border-r-transparent border-b-transparent border-l-transparent rounded-full"
+                />
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                  className="absolute inset-4 border border-b-[rgba(255,255,255,0.3)] border-t-transparent border-r-transparent border-l-transparent rounded-full"
+                />
+                <Sparkles className="w-6 h-6 text-[#F5F5F5] opacity-50" strokeWidth={1} />
+              </div>
+              <h2 className="text-2xl font-cormorant text-[#F5F5F5] tracking-[0.2em] uppercase italic">Synthesizing Profile</h2>
+              <p className="text-[#8A8A8A] font-sans mt-6 max-w-sm text-xs uppercase tracking-widest">Cross-referencing algorithmic match against 400+ artisan notes...</p>
+            </motion.div>
+          )}
+
+          {result === "match" && (
+            <motion.div
+              key="match"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+              className="text-center flex flex-col items-center"
+            >
+              <span className="text-[#8A8A8A] font-sans uppercase tracking-[0.3em] mb-6 text-[10px]">94% Match Accuracy Found</span>
+              <h2 className="text-5xl md:text-7xl font-cormorant text-[#F5F5F5] mb-16 italic">Your Signature Profile</h2>
+              
+              <div className="relative p-[1px] w-full max-w-2xl bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-transparent mb-12">
+                <div className="bg-[#080808] p-12 flex flex-col md:flex-row items-center gap-12 text-left">
+                  <div className="w-40 h-56 relative overflow-hidden bg-[#111]">
+                    <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover scale-110" alt="Matched perfume" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-4xl font-cormorant text-[#F5F5F5] mb-2">Nocturne 04</h3>
+                    <p className="text-[#8A8A8A] font-sans text-xs uppercase tracking-[0.2em] mb-8">Artisan: Lumiere</p>
+                    <div className="space-y-4 font-sans text-[10px] text-[#8A8A8A] uppercase tracking-[0.2em]">
+                      <div className="flex justify-between border-b border-[rgba(255,255,255,0.1)] pb-2"><span className="text-[#F5F5F5]">Top</span><span>Bergamot</span></div>
+                      <div className="flex justify-between border-b border-[rgba(255,255,255,0.1)] pb-2"><span className="text-[#F5F5F5]">Heart</span><span>Black Tea</span></div>
+                      <div className="flex justify-between"><span className="text-[#F5F5F5]">Base</span><span>Oud</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <PrimaryButton onClick={onClose}>Discover Collection</PrimaryButton>
+            </motion.div>
+          )}
+
+          {result === "zero" && (
+            <motion.div
+              key="zero"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+              className="text-center flex flex-col items-center"
+            >
+              <h2 className="text-5xl md:text-7xl font-cormorant text-[#F5F5F5] mb-8 italic">Curated Discoveries</h2>
+              <p className="text-[#8A8A8A] font-sans text-sm tracking-wide max-w-lg leading-relaxed mb-16">
+                Your profile is exceptionally unique. While our artisans refine your bespoke match, explore these universal signatures crafted for the avant-garde.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl mb-12">
+                {[1, 2].map((i) => (
+                  <div key={i} className="group cursor-pointer">
+                    <div className="h-64 bg-[#111] w-full mb-6 overflow-hidden relative">
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="text-[#F5F5F5] font-cormorant text-3xl mb-2 group-hover:italic transition-all">Universal 0{i}</h4>
+                      <p className="text-[#8A8A8A] font-sans text-[10px] uppercase tracking-[0.2em]">Minimalist & Clean</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <MagneticButton onClick={onClose} className="text-[#F5F5F5] font-sans text-xs uppercase tracking-[0.2em] border-b border-[#F5F5F5] pb-1">Return</MagneticButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+// Asymmetrical Product Cards Section
+const PRODUCTS = [
+  { id: 1, name: "Santal Vol. 1", artisan: "Le Labo", img: "https://images.unsplash.com/photo-1599305090598-fe179d501227?q=80&w=800&auto=format&fit=crop", notes: { top: "Cardamom", heart: "Iris", base: "Sandalwood" }, offset: "md:mt-0", height: "h-[70vh]" },
+  { id: 2, name: "Oud Noir", artisan: "In-House", img: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?q=80&w=800&auto=format&fit=crop", notes: { top: "Rose", heart: "Patchouli", base: "Agarwood" }, offset: "md:mt-32", height: "h-[85vh]" },
+  { id: 3, name: "Vetiver Bloom", artisan: "Artisan Co.", img: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?q=80&w=800&auto=format&fit=crop", notes: { top: "Citrus", heart: "Vetiver", base: "Cedar" }, offset: "md:mt-16", height: "h-[65vh]" },
+];
+
+const ProductSection = () => {
+  return (
+    <section className="bg-[#080808] py-40 px-8 relative z-10">
+      <div className="max-w-[90rem] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-32 gap-8">
+          <div className="max-w-xl">
+            <span className="text-[#8A8A8A] font-sans uppercase tracking-[0.3em] text-[10px] mb-6 block">Our Collection</span>
+            <h2 className="text-5xl md:text-7xl font-cormorant font-light text-[#F5F5F5] leading-none">
+              Featured Extracts
+            </h2>
+          </div>
+          <MagneticButton className="text-[#F5F5F5] text-xs uppercase tracking-[0.2em] border-b border-[rgba(255,255,255,0.3)] hover:border-[#F5F5F5] pb-1 transition-colors">
+            View the Gallery
+          </MagneticButton>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
+          {PRODUCTS.map((prod) => (
+            <motion.div 
+              key={prod.id} 
+              initial={{ opacity: 0, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+              className={`relative flex flex-col ${prod.offset}`}
+            >
+              <TiltCard className="w-full rounded-none">
+                <div className={`relative w-full ${prod.height} overflow-hidden bg-[#111] group`}>
+                  <img
+                    src={prod.img}
+                    alt={prod.name}
+                    className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-1000 ease-[0.76,0,0.24,1]"
+                    loading="lazy"
+                  />
+                  
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-[#080808]/20 group-hover:bg-transparent transition-colors duration-1000" />
+                  
+                  {/* Hover Reveal Details */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="space-y-4 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-700 ease-[0.76,0,0.24,1]">
+                      <div className="flex justify-between border-b border-[rgba(255,255,255,0.2)] pb-2 text-[10px] font-sans tracking-[0.2em] uppercase">
+                        <span className="text-[#8A8A8A]">Top</span><span className="text-[#F5F5F5]">{prod.notes.top}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-[rgba(255,255,255,0.2)] pb-2 text-[10px] font-sans tracking-[0.2em] uppercase">
+                        <span className="text-[#8A8A8A]">Heart</span><span className="text-[#F5F5F5]">{prod.notes.heart}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] font-sans tracking-[0.2em] uppercase">
+                        <span className="text-[#8A8A8A]">Base</span><span className="text-[#F5F5F5]">{prod.notes.base}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard>
+              
+              <div className="pt-8 flex justify-between items-start group">
+                <div>
+                  <h3 className="text-[#F5F5F5] text-3xl font-cormorant mb-2 group-hover:italic transition-all duration-500">{prod.name}</h3>
+                  <p className="text-[#8A8A8A] font-sans text-[10px] uppercase tracking-[0.2em]">{prod.artisan}</p>
+                </div>
+                <MagneticButton className="w-12 h-12 rounded-full border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#F5F5F5] hover:bg-[#F5F5F5] hover:text-[#080808] transition-colors duration-500">
+                  <ArrowUpRight className="w-4 h-4" />
+                </MagneticButton>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Main Page Assembly
+export default function ScentMatchLanding() {
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  return (
+    <main className="min-h-screen bg-[#080808] font-sans">
+      <Navigation onQuizStart={() => setQuizOpen(true)} />
+      <Hero onQuizStart={() => setQuizOpen(true)} />
+      <InfiniteMarquee text="The Digital Sommelier • Find Your Scent" />
+      <ProductSection />
+      
+      <AnimatePresence>
+        {quizOpen && <ScentQuiz onClose={() => setQuizOpen(false)} />}
+      </AnimatePresence>
+    </main>
+  );
+}
