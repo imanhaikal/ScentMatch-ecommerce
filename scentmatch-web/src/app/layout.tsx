@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} antialiased bg-black text-white min-h-screen selection:bg-white selection:text-black relative`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} antialiased bg-background text-foreground min-h-screen selection:bg-foreground selection:text-background relative`}
       >
         <MouseSpotlight />
         <SmoothScroll>

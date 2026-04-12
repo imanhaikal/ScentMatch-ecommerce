@@ -65,7 +65,7 @@ export const CustomCursor = () => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 w-6 h-6 rounded-full pointer-events-none z-[9999] mix-blend-difference bg-white"
+      className="fixed top-0 left-0 w-6 h-6 rounded-full pointer-events-none z-[9999] mix-blend-difference bg-foreground"
       style={{
         x: cursorX,
         y: cursorY,
@@ -130,15 +130,15 @@ export const SplitText = ({ text, className = "", delay = 0 }: { text: string; c
 
 export const InfiniteMarquee = ({ text }: { text: string }) => {
   return (
-    <div className="relative w-full overflow-hidden bg-[#111] py-6 border-y border-[rgba(255,255,255,0.05)] z-20 flex items-center">
+    <div className="relative w-full overflow-hidden bg-surface py-6 border-y border-white/5 z-20 flex items-center">
       <motion.div
         className="flex whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
         transition={{ repeat: Infinity, ease: "linear", duration: 25 }}
       >
         {[...Array(4)].map((_, i) => (
-          <span key={i} className="text-[#A0A0A0] font-sans uppercase tracking-[0.3em] text-xs px-8 flex items-center gap-8">
-            {text} <span className="w-1.5 h-1.5 rounded-full bg-[#333]" />
+          <span key={i} className="text-muted font-sans uppercase tracking-[0.3em] text-xs px-8 flex items-center gap-8">
+            {text} <span className="w-1.5 h-1.5 rounded-full bg-surface-hover" />
           </span>
         ))}
       </motion.div>
@@ -192,7 +192,7 @@ export const TiltCard = ({ children, className = "" }: { children: React.ReactNo
       />
       
       {/* Card Content Wrapper */}
-      <div className="relative z-10 w-full h-full bg-[#080808]">
+      <div className="relative z-10 w-full h-full bg-background">
         {children}
       </div>
     </motion.div>
