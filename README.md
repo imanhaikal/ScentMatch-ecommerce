@@ -27,8 +27,9 @@ The platform serves four primary actors:
 * **Feedback Loop:** Post-purchase ratings dynamically adjust the algorithm's weighting.
 
 ### 2. Core E-Commerce (B2C)
-* **Premium Catalog:** Minimalist, high-resolution imagery showcasing In-House and Artisan brands.
-* **Frictionless Checkout:** Secure, tokenized payment flows with a smooth, simulated secure checkout overlay integrated directly into the Cart Drawer.
+* **Premium Catalog (`/shop`):** A cinematic, high-performance product grid driven by Intentional Minimalism, featuring advanced olfactive filtering and fluid asynchronous rendering.
+* **Product Detail Pages (`/product/[id]`):** Bespoke layouts with advanced pricing displays, olfactive pyramids, and robust WebKit sticky scrolling fixes to ensure perfect visual hierarchy across devices.
+* **Frictionless Checkout (`CartDrawer.tsx`):** A highly polished, slide-out shopping cart orchestrated by a `framer-motion` state machine, complete with a simulated secure checkout overlay.
 * **Order Management:** Automated status tracking from processing to delivery.
 * **Trust & Support Infrastructure:** Cinematic, static pages for FAQ, Contact, and Return Policies designed to eliminate purchase friction.
 * **Refined Navigation:** Polished routing logic across the Header and Footer to ensure an unbroken, immersive journey.

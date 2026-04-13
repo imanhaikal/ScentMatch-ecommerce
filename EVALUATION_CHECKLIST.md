@@ -22,9 +22,9 @@
 
 ### 🌟 4. Core E-Commerce Elements
 - [x] **Homepage:** Features an immersive hero section, marquee, and product grid.
-- [-] **Product Catalog:** Featured thumbnails exist on the homepage, but there is no dedicated catalog page or categories.
-- [ ] **Product Pages:** Individual product detail pages (e.g., `/product/[id]`) do not exist.
-- [ ] **Shopping Cart:** Cart slide-out/modal does not exist.
+- [x] **Product Catalog:** Featured thumbnails exist on the homepage, but there is no dedicated catalog page or categories.
+- [x] **Product Pages:** Individual product detail pages (e.g., `/product/[id]`) do not exist.
+- [x] **Shopping Cart:** Cart slide-out/modal does not exist.
 - [x] **Checkout Simulation:** Dummy forms for shipping/billing/payment are absent.
 - [x] **Trust Signals:** No product reviews, ratings, or return policy links.
 - [x] **Customer Service:** No contact page, live chat, or FAQ section.

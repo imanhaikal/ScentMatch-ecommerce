@@ -99,46 +99,49 @@ function ShopContent() {
         <div className="max-w-[100rem] mx-auto w-full flex flex-col lg:flex-row gap-16 lg:gap-24 relative">
           
           {/* LEFT: Filters & Search (Sticky on Desktop) */}
-          <aside className="w-full lg:w-1/4 lg:sticky lg:top-40 lg:h-[calc(100vh-10rem)] flex flex-col gap-12 z-10">
+          <aside className="w-full lg:w-1/3 lg:sticky lg:top-40 flex flex-col gap-12 z-10 pr-0 lg:pr-12">
             <div>
-              <h1 className="text-5xl md:text-6xl font-cormorant font-light text-foreground leading-none mb-4">
-                The Archive
-              </h1>
-              <p className="text-muted font-sans text-xs uppercase tracking-[0.2em] mb-12">
+              <p className="text-muted font-sans text-[10px] uppercase tracking-[0.4em] mb-6">
                 Discover your signature
               </p>
+              <h1 className="text-6xl md:text-8xl font-cormorant font-light text-foreground leading-none tracking-tight">
+                Archive.
+              </h1>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input - Avant Garde Large */}
             <div className="relative group">
-              <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-muted group-focus-within:text-foreground transition-colors" />
-              <input 
+              <input
                 id="search-input"
                 type="text"
-                placeholder="Search by name, note..."
+                placeholder="SEARCH ARCHIVE"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent border-b border-white/20 pb-4 pl-8 font-sans text-xs tracking-widest uppercase text-foreground placeholder:text-muted/50 focus:outline-none focus:border-foreground transition-all rounded-none"
+                className="w-full bg-transparent border-b-2 border-white/20 pb-4 font-sans text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted/30 focus:outline-none focus:border-foreground transition-all rounded-none"
               />
+              <Search className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 text-muted group-focus-within:text-foreground transition-colors pointer-events-none" />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-0 top-1/2 -translate-y-1/2 text-muted hover:text-foreground">
-                  <X className="w-4 h-4" />
+                <button onClick={() => setSearchQuery("")} className="absolute right-8 top-1/2 -translate-y-1/2 text-muted hover:text-foreground bg-background pl-2">
+                  <X className="w-5 h-5" />
                 </button>
               )}
             </div>
 
             {/* Category Filter (Desktop) */}
-            <div className="hidden lg:flex flex-col gap-6">
-              <span className="font-cormorant text-2xl italic text-foreground border-b border-white/10 pb-4">Concentration</span>
+            <div className="hidden lg:flex flex-col gap-8">
               <div className="flex flex-col gap-4">
-                {categories.map(cat => (
+                {categories.map((cat, idx) => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`text-left font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 flex items-center gap-4 ${selectedCategory === cat ? 'text-foreground' : 'text-muted hover:text-foreground/80'}`}
+                    className={`text-left group flex items-center gap-6 transition-all duration-500`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full transition-all ${selectedCategory === cat ? 'bg-foreground scale-100' : 'bg-transparent scale-0'}`} />
-                    <span className={selectedCategory === cat ? '-ml-2' : ''}>{cat}</span>
+                    <span className={`font-sans text-[9px] tracking-widest text-muted group-hover:text-foreground transition-colors`}>
+                      0{idx + 1}
+                    </span>
+                    <span className={`font-cormorant text-4xl transition-all duration-500 ${selectedCategory === cat ? 'text-foreground italic translate-x-4' : 'text-muted group-hover:text-foreground/80 group-hover:translate-x-2'}`}>
+                      {cat}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -146,27 +149,28 @@ function ShopContent() {
 
             {/* Mobile Filter Toggle */}
             <div className="lg:hidden">
-              <button 
+              <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className="flex items-center justify-between w-full border-b border-white/20 pb-4 font-sans text-xs tracking-[0.2em] uppercase"
               >
-                <span>Filter by Concentration</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+                <span>Concentration</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-500 ${isFilterOpen ? 'rotate-180' : ''}`} />
               </button>
               <AnimatePresence>
                 {isFilterOpen && (
-                  <motion.div 
+                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden flex flex-col gap-4 pt-6"
                   >
-                    {categories.map(cat => (
+                    {categories.map((cat, idx) => (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`text-left font-sans text-xs tracking-[0.2em] uppercase transition-colors ${selectedCategory === cat ? 'text-foreground' : 'text-muted'}`}
+                        className={`text-left font-cormorant text-3xl transition-all duration-300 ${selectedCategory === cat ? 'text-foreground italic' : 'text-muted'}`}
                       >
+                        <span className="font-sans text-[9px] tracking-widest mr-4 opacity-50">0{idx + 1}</span>
                         {cat}
                       </button>
                     ))}
@@ -177,7 +181,7 @@ function ShopContent() {
           </aside>
 
           {/* RIGHT: Product Gallery (Asymmetrical Grid) */}
-          <div className="w-full lg:w-3/4">
+          <div className="w-full lg:w-2/3">
             {filteredProducts.length === 0 ? (
               <div className="h-[50vh] flex flex-col items-center justify-center text-center opacity-50">
                 <span className="font-cormorant text-4xl italic mb-4">Nothing Found</span>

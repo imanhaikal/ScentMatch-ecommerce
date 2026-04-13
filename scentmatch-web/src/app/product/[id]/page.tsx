@@ -153,43 +153,48 @@ export default function ProductDetailPage() {
             </p>
 
             {/* Pricing Model Selection */}
-            <div className="space-y-4 mb-10">
-              <span className="font-cormorant text-2xl italic text-foreground block mb-4">Acquisition Model</span>
-              <fieldset className="flex flex-col gap-3">
+            <div className="space-y-6 mb-12">
+              <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted block border-b border-white/10 pb-4">Acquisition Model</span>
+              <fieldset className="flex flex-col gap-4">
                 <legend className="sr-only">Choose a pricing model</legend>
-                <label className="relative flex items-center justify-between p-5 border border-foreground cursor-pointer group transition-colors bg-white/5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-foreground" />
-                    <span className="font-sans text-xs uppercase tracking-widest text-foreground">One-Time Acquisition</span>
+                <label className="relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent border-white/20 hover:border-foreground">
+                  <div className="flex items-center gap-6">
+                    <div className="w-1.5 h-1.5 bg-foreground group-hover:scale-150 transition-transform duration-500" />
+                    <span className="font-sans text-xs uppercase tracking-widest text-foreground group-hover:translate-x-2 transition-transform duration-500">One-Time Acquisition</span>
                   </div>
                   <span className="font-sans text-xs tracking-widest text-foreground">RM{product.price}</span>
                   <input type="radio" name="pricingModel" value="one-time" defaultChecked className="sr-only" />
+                  <div className="absolute inset-0 border border-foreground opacity-100 pointer-events-none transition-opacity" />
                 </label>
-                <label className="relative flex items-center justify-between p-5 border border-white/10 cursor-pointer group hover:border-white/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-transparent border border-muted group-hover:border-foreground transition-colors" />
-                    <div className="flex flex-col">
-                      <span className="font-sans text-xs uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">Curator's Allocation</span>
-                      <span className="font-cormorant italic text-sm text-muted group-hover:text-foreground transition-colors">Replenish every 3 months</span>
+                <label className="relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent border-white/5 hover:border-white/40 opacity-50 hover:opacity-100 grayscale hover:grayscale-0">
+                  <div className="flex items-center gap-6">
+                    <div className="w-1.5 h-1.5 bg-transparent border border-muted group-hover:bg-muted transition-colors duration-500" />
+                    <div className="flex flex-col gap-1">
+                      <span className="font-sans text-xs uppercase tracking-widest text-foreground group-hover:translate-x-2 transition-transform duration-500">Curator's Allocation</span>
+                      <span className="font-cormorant italic text-sm text-muted group-hover:translate-x-2 transition-transform duration-500">Replenish every 3 months</span>
                     </div>
                   </div>
-                  <span className="font-sans text-xs tracking-widest text-muted group-hover:text-foreground transition-colors">RM{Math.round(product.price * 0.85)}</span>
+                  <span className="font-sans text-xs tracking-widest text-foreground">RM{Math.round(product.price * 0.85)}</span>
                   <input type="radio" name="pricingModel" value="subscription" className="sr-only" />
+                  <div className="absolute inset-0 border border-transparent group-hover:border-white/40 pointer-events-none transition-colors" />
                 </label>
               </fieldset>
             </div>
 
             {/* Olfactive Pyramid */}
             <div className="space-y-4 mb-12">
-              <span className="font-cormorant text-2xl italic text-foreground block mb-6">Olfactive Pyramid</span>
-              <div className="flex justify-between border-b border-white/10 pb-4 text-xs font-sans tracking-[0.2em] uppercase">
-                <span className="text-muted">Top</span><span className="text-foreground">{product.notes.top}</span>
+              <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted block border-b border-white/10 pb-4 mb-6">Olfactive Architecture</span>
+              <div className="flex justify-between items-end border-b border-white/5 pb-4 group hover:border-white/30 transition-colors duration-500">
+                <span className="text-[10px] font-sans tracking-[0.3em] uppercase text-muted group-hover:text-foreground transition-colors">Top Notes</span>
+                <span className="text-sm font-cormorant italic text-foreground text-right w-2/3 group-hover:-translate-x-2 transition-transform duration-500">{product.notes.top}</span>
               </div>
-              <div className="flex justify-between border-b border-white/10 pb-4 text-xs font-sans tracking-[0.2em] uppercase">
-                <span className="text-muted">Heart</span><span className="text-foreground">{product.notes.heart}</span>
+              <div className="flex justify-between items-end border-b border-white/5 pb-4 group hover:border-white/30 transition-colors duration-500">
+                <span className="text-[10px] font-sans tracking-[0.3em] uppercase text-muted group-hover:text-foreground transition-colors">Heart Notes</span>
+                <span className="text-sm font-cormorant italic text-foreground text-right w-2/3 group-hover:-translate-x-2 transition-transform duration-500">{product.notes.heart}</span>
               </div>
-              <div className="flex justify-between text-xs font-sans tracking-[0.2em] uppercase">
-                <span className="text-muted">Base</span><span className="text-foreground">{product.notes.base}</span>
+              <div className="flex justify-between items-end border-b border-transparent pb-4 group hover:border-white/30 transition-colors duration-500">
+                <span className="text-[10px] font-sans tracking-[0.3em] uppercase text-muted group-hover:text-foreground transition-colors">Base Notes</span>
+                <span className="text-sm font-cormorant italic text-foreground text-right w-2/3 group-hover:-translate-x-2 transition-transform duration-500">{product.notes.base}</span>
               </div>
             </div>
 

@@ -26,12 +26,12 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 
 ### 2.2 Component Structure (Atomic Design)
 * **Atoms:** Base primitives (1px silver borders, customized `MagneticButton`, typography scales).
-* **Molecules:** Feature elements (`TiltCard`, `SplitText`, Scent Quiz input constraints).
-* **Organisms:** Full-bleed hero layouts, interactive `InfiniteMarquee`, dynamic asynchronous product grids, and simulated checkout overlays.
+* **Molecules:** Feature elements (`TiltCard`, `SplitText`, Scent Quiz input constraints, advanced olfactive note tags).
+* **Organisms:** Full-bleed hero layouts, interactive `InfiniteMarquee`, cinematic product catalog grids, and the `framer-motion` powered `CartDrawer` simulating a secure checkout flow.
 
 ### 2.3 Animations & Performance
-* **Hardware Acceleration:** Relies strictly on `transform` and `opacity` CSS properties. Avoids properties triggering layout recalculations to ensure 60fps renders.
-* **Framer Motion:** Used for staggered reveals, page transitions, and ensuring the complex state machine of the Scent Quiz mounts/unmounts fluidly without flashing.
+* **Hardware Acceleration:** Relies strictly on `transform` and `opacity` CSS properties. Avoids properties triggering layout recalculations to ensure 60fps renders. Implements rigorous WebKit sticky scrolling fixes in Product Detail Pages to prevent jank on iOS/Safari.
+* **Framer Motion:** Powers the complex state machines governing the `CartDrawer` and Scent Quiz, ensuring fluid mounting/unmounting, staggered reveals, and layout transitions without visual flashing.
 * **Accessibility:** Implements `prefers-reduced-motion` fallbacks. Custom silver focus rings (`:focus-visible`) replace standard browser outlines to preserve cinematic immersion without sacrificing a11y.
 
 ### 2.4 State Management
@@ -46,16 +46,16 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 The Next.js App Router codebase (`/scentmatch-web/src`) follows a feature-based structure to ensure clear separation of concerns and maintainability.
 
 ### Key Directories & Files
-* **`app/`**: Contains route definitions and layouts.
+* **`app/`**: Contains route definitions and layouts following Intentional Minimalism.
   * `page.tsx`: The cinematic landing page and entry point.
-  * `shop/page.tsx`: The primary product catalog featuring category/scent filtering.
-  * `product/[id]/page.tsx`: Dynamic product details pages displaying olfactive pyramids and stock state.
+  * `shop/page.tsx`: The primary product catalog featuring advanced olfactive filtering and fluid asynchronous rendering.
+  * `product/[id]/page.tsx`: Dynamic product detail pages displaying olfactive pyramids, advanced pricing UI, and utilizing WebKit sticky scrolling fixes for perfect visual hierarchy.
   * `login/page.tsx`, `signup/page.tsx`: Minimalist authentication pages (UI only).
   * `account/page.tsx`: Simulated user dashboard for profiles and order history.
   * `faq/page.tsx`, `contact/page.tsx`, `returns/page.tsx`: Dedicated Trust & Support pages rendering static, cinematic content.
 * **`components/`**: Reusable React elements (Atoms, Molecules, Organisms).
   * `PremiumUI.tsx`: Shared UI atoms like `MagneticButton` and `AnimatedText`.
-  * `CartDrawer.tsx`: Framer-motion powered slide-out shopping cart integrating a simulated secure checkout overlay for frictionless interactions.
+  * `CartDrawer.tsx`: A robust slide-out shopping cart orchestrated by a `framer-motion` state machine, integrating a simulated secure checkout flow.
   * `Footer.tsx`, `Header.tsx`: Polished navigation components with refined routing logic to prevent broken journeys.
 * **`store/`**: Global state management definitions.
   * `useCartStore.ts`: Zustand store managing cart items, quantities, and drawer visibility.
