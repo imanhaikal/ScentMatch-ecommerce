@@ -195,15 +195,50 @@ export const CartDrawer = () => {
                 <div className="flex flex-col gap-4">
                   <MagneticButton
                     onClick={() => {
-                      alert("Order placed successfully!");
-                      closeCart();
-                      useCartStore.getState().clearCart();
+                      setIsCheckingOut(false);
+                      // Custom avant-garde checkout simulation
+                      
+                      const overlay = document.createElement("div");
+                      overlay.className = "fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center opacity-0 transition-opacity duration-1000";
+                      
+                      const title = document.createElement("h2");
+                      title.className = "font-cormorant text-4xl md:text-6xl text-foreground italic mb-4 animate-pulse";
+                      title.innerText = "Authenticating";
+                      
+                      const subtitle = document.createElement("p");
+                      subtitle.className = "font-sans text-[10px] uppercase tracking-[0.3em] text-muted";
+                      subtitle.innerText = "Encrypting transaction via secure channels";
+                      
+                      overlay.appendChild(title);
+                      overlay.appendChild(subtitle);
+                      document.body.appendChild(overlay);
+                      
+                      // Trigger fade in
+                      setTimeout(() => {
+                        overlay.classList.remove("opacity-0");
+                        overlay.classList.add("opacity-100");
+                      }, 50);
+                      
+                      setTimeout(() => {
+                        title.innerText = "Transaction Complete";
+                        title.classList.remove("animate-pulse");
+                        subtitle.innerText = "Welcome to the Scentmatch Collection.";
+                        useCartStore.getState().clearCart();
+                        closeCart();
+                      }, 3000);
+                      
+                      setTimeout(() => {
+                        overlay.classList.remove("opacity-100");
+                        overlay.classList.add("opacity-0");
+                        setTimeout(() => document.body.removeChild(overlay), 1000);
+                      }, 5500);
                     }}
                     className="w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-5 font-sans text-xs font-bold flex items-center justify-center gap-4"
                   >
                     <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
-                    <span className="relative z-10 group-hover:text-foreground transition-colors duration-500">
-                      Confirm Purchase
+                    <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-background group-hover:bg-foreground rounded-full animate-pulse transition-colors" />
+                      Secure Acquisition
                     </span>
                   </MagneticButton>
                   <button

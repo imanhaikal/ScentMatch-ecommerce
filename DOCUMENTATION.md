@@ -27,7 +27,7 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 ### 2.2 Component Structure (Atomic Design)
 * **Atoms:** Base primitives (1px silver borders, customized `MagneticButton`, typography scales).
 * **Molecules:** Feature elements (`TiltCard`, `SplitText`, Scent Quiz input constraints).
-* **Organisms:** Full-bleed hero layouts, interactive `InfiniteMarquee`, and dynamic asynchronous product grids.
+* **Organisms:** Full-bleed hero layouts, interactive `InfiniteMarquee`, dynamic asynchronous product grids, and simulated checkout overlays.
 
 ### 2.3 Animations & Performance
 * **Hardware Acceleration:** Relies strictly on `transform` and `opacity` CSS properties. Avoids properties triggering layout recalculations to ensure 60fps renders.
@@ -35,7 +35,7 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 * **Accessibility:** Implements `prefers-reduced-motion` fallbacks. Custom silver focus rings (`:focus-visible`) replace standard browser outlines to preserve cinematic immersion without sacrificing a11y.
 
 ### 2.4 State Management
-* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, and subtotal calculation without prop drilling.
+* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, subtotal calculation, and simulated checkout flow orchestration without prop drilling.
 * **Quiz State:** Managed via local component state in `page.tsx` ensuring the multi-step quiz logic avoids triggering cascading Virtual DOM updates globally.
 * **Persistence:** Mid-quiz progress will be synced to `sessionStorage` to recover states seamlessly upon accidental browser reloads (Implementation Pending).
 
@@ -52,9 +52,11 @@ The Next.js App Router codebase (`/scentmatch-web/src`) follows a feature-based 
   * `product/[id]/page.tsx`: Dynamic product details pages displaying olfactive pyramids and stock state.
   * `login/page.tsx`, `signup/page.tsx`: Minimalist authentication pages (UI only).
   * `account/page.tsx`: Simulated user dashboard for profiles and order history.
+  * `faq/page.tsx`, `contact/page.tsx`, `returns/page.tsx`: Dedicated Trust & Support pages rendering static, cinematic content.
 * **`components/`**: Reusable React elements (Atoms, Molecules, Organisms).
   * `PremiumUI.tsx`: Shared UI atoms like `MagneticButton` and `AnimatedText`.
-  * `CartDrawer.tsx`: Framer-motion powered slide-out shopping cart for seamless user checkout interactions.
+  * `CartDrawer.tsx`: Framer-motion powered slide-out shopping cart integrating a simulated secure checkout overlay for frictionless interactions.
+  * `Footer.tsx`, `Header.tsx`: Polished navigation components with refined routing logic to prevent broken journeys.
 * **`store/`**: Global state management definitions.
   * `useCartStore.ts`: Zustand store managing cart items, quantities, and drawer visibility.
 * **`data/`**: Centralized, local mock data and constants.

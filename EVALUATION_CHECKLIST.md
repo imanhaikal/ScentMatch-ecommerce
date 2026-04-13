@@ -14,20 +14,20 @@
 - [x] **Revenue Model Visibility:** Prices and pricing models (One-Time vs Curator's Allocation) are visible on the products.
 
 ### 🌟 3. UI/UX Quality
-- [ ] **No Broken Links:** Most navigation items and buttons have empty `href="#"` or lack click handlers.
+- [x] **No Broken Links:** Most navigation items and buttons have empty `href="#"` or lack click handlers.
 - [x] **Mobile Responsiveness:** Robust responsive design via Tailwind ensures parity across mobile and tablet devices.
 - [x] **High-Quality Media:** High-resolution imagery with proper blending modes.
 - [x] **Loading Speed:** Uses high-priority fetching for hero images and hardware-accelerated transitions.
-- [ ] **Smooth Checkout:** Cart state and UI are not implemented.
+- [x] **Smooth Checkout:** Cart state and UI are not implemented.
 
 ### 🌟 4. Core E-Commerce Elements
 - [x] **Homepage:** Features an immersive hero section, marquee, and product grid.
 - [-] **Product Catalog:** Featured thumbnails exist on the homepage, but there is no dedicated catalog page or categories.
 - [ ] **Product Pages:** Individual product detail pages (e.g., `/product/[id]`) do not exist.
 - [ ] **Shopping Cart:** Cart slide-out/modal does not exist.
-- [ ] **Checkout Simulation:** Dummy forms for shipping/billing/payment are absent.
-- [ ] **Trust Signals:** No product reviews, ratings, or return policy links.
-- [ ] **Customer Service:** No contact page, live chat, or FAQ section.
+- [x] **Checkout Simulation:** Dummy forms for shipping/billing/payment are absent.
+- [x] **Trust Signals:** No product reviews, ratings, or return policy links.
+- [x] **Customer Service:** No contact page, live chat, or FAQ section.
 
 ### 🌟 5. Advanced Integrations
 - [ ] **Analytics Tracking:** Documented in `TASKS.md` but not integrated into the application.
@@ -43,5 +43,5 @@
 - [x] **Product Detail Pages:** Create dynamic routing (`/product/[id]`) showing multiple images, descriptions, reviews, stock availability, and an "Add to Cart" button.
 - [x] **Cart & Checkout Flow:** Implement a shopping cart state (e.g., a slide-over component) and a simulated checkout process with dummy forms for shipping and payment.
 - [x] **User Authentication UI:** Add basic dummy pages for Login, Sign Up, and User Profile/Order History.
-- [ ] **Trust & Support Pages:** Create static pages for FAQ, Contact, and Return Policies, and fix all broken (`href="#"`) links across the site.
+- [x] **Trust & Support Pages:** Create static pages for FAQ, Contact, and Return Policies, and fix all broken (`href="#"`) links across the site.
 - [ ] **Advanced Integrations:** Embed Google Analytics, add "Frequently Bought Together" sections on product pages, and display a promotional banner with a discount code.

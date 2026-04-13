@@ -76,13 +76,18 @@ const Navigation = ({ onQuizStart }: { onQuizStart: () => void }) => {
             </span>
           </MagneticButton>
         </Link>
-        {["Artisans", "Journal"].map((item) => (
-          <MagneticButton key={item} className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
-            <span className="relative overflow-hidden flex flex-col">
-              <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item}</span>
-              <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item}</span>
-            </span>
-          </MagneticButton>
+        {[
+          { name: "FAQ", path: "/faq" },
+          { name: "Contact", path: "/contact" }
+        ].map((item) => (
+          <Link key={item.name} href={item.path}>
+            <MagneticButton className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
+              <span className="relative overflow-hidden flex flex-col">
+                <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item.name}</span>
+                <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item.name}</span>
+              </span>
+            </MagneticButton>
+          </Link>
         ))}
       </nav>
       <div className="flex items-center gap-6 z-50">

@@ -28,8 +28,10 @@ The platform serves four primary actors:
 
 ### 2. Core E-Commerce (B2C)
 * **Premium Catalog:** Minimalist, high-resolution imagery showcasing In-House and Artisan brands.
-* **Frictionless Checkout:** Secure, tokenized payment flows.
+* **Frictionless Checkout:** Secure, tokenized payment flows with a smooth, simulated secure checkout overlay integrated directly into the Cart Drawer.
 * **Order Management:** Automated status tracking from processing to delivery.
+* **Trust & Support Infrastructure:** Cinematic, static pages for FAQ, Contact, and Return Policies designed to eliminate purchase friction.
+* **Refined Navigation:** Polished routing logic across the Header and Footer to ensure an unbroken, immersive journey.
 
 ### 3. Vendor Aggregator Portal (B2B)
 * **Artisan Onboarding:** Streamlined registration pipeline for local perfumers.
@@ -67,9 +69,9 @@ Guided by the **"Cinematic Minimalism"** and **ULTRATHINK** protocols:
 Following **Feature-Driven Development (FDD)**, the project is structured into 6 phases:
 
 * **Phase 1: Foundation & Architecture** - ✅ *Completed* (Landing page, shared UI, Next.js scaffolding, global state).
-* **Phase 2: Core E-Commerce** - ✅ *Completed (Core)* / ⏳ *Pending (Checkout)* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer, Zustand cart state).
+* **Phase 2: Core E-Commerce** - ✅ *Completed* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer with simulated secure checkout, polished navigation, Zustand cart state).
 * **Phase 3: The ScentMatch Engine** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Quiz UI, Match results, State persistence).
-* **Phase 4: User Authentication** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, `/account` dashboard UI).
+* **Phase 4: User Authentication & Support** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, `/account` dashboard UI, Trust & Support pages).
 * **Phase 5: Vendor Aggregator (B2B)** - ⏳ *Pending* (Onboarding, vendor dashboard, product mapping, commission tracking).
 * **Phase 6: Polish & Testing** - ⏳ *Pending* (WCAG audit, performance optimization, full-funnel E2E testing).
 

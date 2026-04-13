@@ -22,6 +22,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 - [x] **Product Catalog Page (`/shop`):** Expand product grid layout for the full catalog with filtering and pagination.
 - [x] **Product Details Page (`/product/[id]`):** Create the immersive product view displaying Top, Heart, and Base notes, price, and "Add to Cart" functionality.
 - [x] **Shopping Cart Slide-out:** Implement a non-intrusive cart drawer/modal allowing users to add/remove items, view subtotal, and proceed to checkout.
+- [x] **Checkout Simulation:** Implementing Smooth Checkout / Checkout Simulation (dummy shipping/payment forms in CartDrawer).
 - [ ] **Secure Checkout Flow (`/checkout`):** Build the multi-step checkout form (Shipping, Billing, Payment) and integrate a payment gateway tokenization component (e.g., Stripe or FPX).
 - [ ] **Order Confirmation:** Create the `/checkout/success` page and hook into WooCommerce for automated confirmation emails.
 
@@ -39,6 +40,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 
 - [x] **Authentication Flow:** Build the Login (`/login`) and Registration (`/signup`) pages securely interfacing with the backend auth system.
 - [x] **Customer Dashboard (`/account`):** Create the secure area for users to view order history, tracking status, and their saved Scent Profile.
+- [x] **Trust & Support Pages:** Creating Trust & Support pages (FAQ, Contact, Return Policies).
 - [ ] **Post-Purchase Feedback UI:** Design and implement the 14-day post-delivery feedback module (1-5 star rating) to collect data for algorithm weight adjustment.
 
 ## Phase 5: Vendor Aggregator Portal (B2B)
@@ -52,6 +54,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 ## Phase 6: Polish, Performance & Testing
 *Objective: Ensure the application meets all non-functional requirements and quality standards.*
 
+- [x] **Link Refinement:** Fixing broken links (e.g. `href='#'`).
 - [ ] **Accessibility (WCAG AAA) Audit:** Verify stark contrast ratios (>7:1), semantic HTML, `aria-live` regions for the quiz, and custom keyboard focus states.
 - [ ] **Performance Optimization:** Implement aggressive image lazy loading, WebP/AVIF formats, and base64 "blur-up" skeletons to ensure sub-3-second load times.
 - [ ] **Animation Refinement:** Add `prefers-reduced-motion` media queries to gracefully degrade animations for users with vestibular disorders.

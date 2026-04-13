@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { MagneticButton } from "@/components/PremiumUI";
+import Link from "next/link";
 
 export const Footer = () => {
   return (
@@ -26,11 +27,16 @@ export const Footer = () => {
               Index
             </span>
             <nav className="flex flex-col gap-4">
-              {["Collection", "Artisans", "Journal", "Algorithm"].map((item) => (
-                <MagneticButton key={item} className="w-fit md:w-full md:justify-end">
-                  <a href={`#${item.toLowerCase()}`} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] hover:italic hover:text-muted transition-all duration-500 flex items-center gap-2">
-                    {item} <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </a>
+              {[
+                { name: "Collection", path: "/shop" },
+                { name: "FAQ", path: "/faq" },
+                { name: "Contact", path: "/contact" },
+                { name: "Returns", path: "/returns" }
+              ].map((item) => (
+                <MagneticButton key={item.name} className="w-fit md:w-full md:justify-end">
+                  <Link href={item.path} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] hover:italic hover:text-muted transition-all duration-500 flex items-center gap-2">
+                    {item.name} <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
                 </MagneticButton>
               ))}
             </nav>
@@ -55,9 +61,9 @@ export const Footer = () => {
             <span>© {new Date().getFullYear()} Scentmatch Inc.</span>
             
             <div className="flex gap-8">
-              <a href="/instagram" className="hover:text-foreground transition-colors">Instagram</a>
-              <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Instagram</a>
+              <Link href="/" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/" className="hover:text-foreground transition-colors">Privacy</Link>
             </div>
           </div>
         </div>
