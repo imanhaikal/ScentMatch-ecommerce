@@ -111,7 +111,7 @@ export default function AccountPage() {
                       <p className="text-xs text-muted">{order.date}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className="text-sm text-foreground tracking-widest uppercase mb-1">${order.total}</p>
+                      <p className="text-sm text-foreground tracking-widest uppercase mb-1">RM{order.total}</p>
                       <p className="text-xs text-muted">{order.status}</p>
                     </div>
                   </div>

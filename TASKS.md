@@ -1,5 +1,7 @@
 # ScentMatch: Implementation Tasks
 
+> **Status:** Verified against current implementation state (April 2026). Core B2C routes (`/shop`, `/product/[id]`, `/login`, `/signup`, `/account`) and the Scent Quiz are fully scaffolded and marked as complete.
+
 This document outlines the chronological phases and specific, actionable tasks required to build the ScentMatch prototype, based on the requirements, architecture, and design specifications.
 
 ## Phase 1: Foundation & Project Architecture
@@ -10,7 +12,8 @@ This document outlines the chronological phases and specific, actionable tasks r
 - [x] **State Management Setup:** Initialize Zustand or React Context for global state (Shopping Cart, User Session, Quiz State).
 - [ ] **API Client Configuration:** Set up Axios or native Fetch wrapper for WooCommerce headless API communication (GraphQL/REST).
 - [ ] **Analytics Integration:** Integrate Google Analytics 4 (GA4) to track specific custom events (Quiz Started, Quiz Completed, Add to Cart, Purchase).
-- [x] **Routing Structure:** Scaffold Next.js App Router folders for `/shop`, `/product/[id]`, `/checkout`, `/account`, and `/vendor`.
+- [x] **Routing Structure (Core B2C):** Scaffold Next.js App Router folders for `/shop`, `/product/[id]`, `/account`, `/login`, and `/signup`.
+- [ ] **Routing Structure (Remaining):** Scaffold folders for `/checkout` and `/vendor`.
 
 ## Phase 2: Core E-Commerce (B2C Catalog & Cart)
 *Objective: Deliver standard e-commerce functionality with premium visual fidelity.*
@@ -19,7 +22,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 - [x] **Product Catalog Page (`/shop`):** Expand product grid layout for the full catalog with filtering and pagination.
 - [x] **Product Details Page (`/product/[id]`):** Create the immersive product view displaying Top, Heart, and Base notes, price, and "Add to Cart" functionality.
 - [x] **Shopping Cart Slide-out:** Implement a non-intrusive cart drawer/modal allowing users to add/remove items, view subtotal, and proceed to checkout.
-- [x] **Secure Checkout Flow (`/checkout`):** Build the multi-step checkout form (Shipping, Billing, Payment) and integrate a payment gateway tokenization component (e.g., Stripe or FPX).
+- [ ] **Secure Checkout Flow (`/checkout`):** Build the multi-step checkout form (Shipping, Billing, Payment) and integrate a payment gateway tokenization component (e.g., Stripe or FPX).
 - [ ] **Order Confirmation:** Create the `/checkout/success` page and hook into WooCommerce for automated confirmation emails.
 
 ## Phase 3: The ScentMatch Engine (Core Logic)
@@ -34,7 +37,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 ## Phase 4: User Authentication & Customer Portal
 *Objective: Enable personalized experiences, order tracking, and algorithm refinement.*
 
-- [x] **Authentication Flow:** Build the Login and Registration modals/pages securely interfacing with the backend auth system.
+- [x] **Authentication Flow:** Build the Login (`/login`) and Registration (`/signup`) pages securely interfacing with the backend auth system.
 - [x] **Customer Dashboard (`/account`):** Create the secure area for users to view order history, tracking status, and their saved Scent Profile.
 - [ ] **Post-Purchase Feedback UI:** Design and implement the 14-day post-delivery feedback module (1-5 star rating) to collect data for algorithm weight adjustment.
 
@@ -57,6 +60,7 @@ This document outlines the chronological phases and specific, actionable tasks r
 ---
 
 ## Next Steps
-1. **Routing & Directory Structure:** Create the Next.js App Router structure for the remaining pages (`/shop`, `/product/[id]`, `/checkout`, etc.).
-2. **State Management Integration:** Introduce Zustand to manage global state such as the Shopping Cart, User Session, and persisting the Scent Quiz state across pages.
+1. **Checkout Flow (`/checkout`):** Build the multi-step checkout form, integrate payment gateway stubs, and create the order confirmation page.
+2. **Quiz State Persistence:** Implement `sessionStorage` syncing to prevent data loss on accidental browser refresh for the Scent Quiz.
 3. **Backend/API Bridging:** Set up the API client to begin communicating with the WooCommerce backend (or a mock API) to fetch real product data and process the `POST /api/scentmatch/calculate` logic.
+4. **Vendor Portal:** Begin scaffolding the B2B dashboard layouts for vendor onboarding and product mapping.

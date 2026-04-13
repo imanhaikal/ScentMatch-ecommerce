@@ -234,7 +234,7 @@ function ShopContent() {
                           <div className="flex gap-4 items-center cursor-pointer">
                             <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">{prod.artisan}</p>
                             <span className="w-1 h-1 rounded-full bg-white/20" />
-                            <p className="text-foreground font-sans text-[10px] tracking-widest">${prod.price}</p>
+                            <p className="text-foreground font-sans text-[10px] tracking-widest">RM{prod.price} MYR</p>
                           </div>
                         </Link>
                         <MagneticButton 

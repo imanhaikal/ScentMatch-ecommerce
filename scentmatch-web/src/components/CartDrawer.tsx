@@ -81,7 +81,7 @@ export const CartDrawer = () => {
                             <div>
                               <div className="flex justify-between items-start">
                                 <h4 className="font-cormorant text-xl text-foreground group-hover:italic transition-all">{item.name}</h4>
-                                <span className="font-sans text-xs tracking-widest">${item.price * item.quantity}</span>
+                                <span className="font-sans text-xs tracking-widest">RM{item.price * item.quantity}</span>
                               </div>
                               <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-muted block mt-1">
                                 {item.artisan}
@@ -177,7 +177,7 @@ export const CartDrawer = () => {
             <div className="p-8 border-t border-white/5 bg-background z-10">
               <div className="flex justify-between items-center mb-6">
                 <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Subtotal</span>
-                <span className="font-sans text-sm tracking-widest">${total.toFixed(2)}</span>
+                <span className="font-sans text-sm tracking-widest">RM{total.toFixed(2)}</span>
               </div>
               
               {!isCheckingOut ? (

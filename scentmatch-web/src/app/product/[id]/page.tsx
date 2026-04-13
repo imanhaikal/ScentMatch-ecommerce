@@ -125,11 +125,12 @@ export default function ProductDetailPage() {
         </div>
 
         {/* RIGHT: Product Details (Sticky on desktop) */}
-        <div className="w-full lg:w-1/2 lg:sticky lg:top-40 lg:h-[calc(100vh-10rem)] flex flex-col justify-center gap-12 lg:pl-12">
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-32 self-start flex flex-col gap-12 lg:pl-12 min-w-0 pb-24">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+            className="w-full flex flex-col"
           >
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -137,14 +138,46 @@ export default function ProductDetailPage() {
                 <h1 className="text-5xl md:text-7xl font-cormorant font-light text-foreground leading-none mb-2">{product.name}</h1>
                 <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">{product.category}</p>
               </div>
-              <p className="text-2xl font-sans tracking-widest">${product.price}</p>
+              <div className="text-right">
+                <p className="text-2xl font-sans tracking-widest">RM{product.price} MYR</p>
+                <p className="text-muted font-sans text-[9px] uppercase tracking-[0.2em] mt-2">Or 4 installments of RM{Math.round(product.price / 4)}</p>
+              </div>
             </div>
 
             <div className="w-full h-px bg-white/10 my-8" />
 
+            <h2 className="font-cormorant text-3xl md:text-4xl italic text-foreground mb-6 uppercase tracking-wider">{product.name}</h2>
+
             <p className="text-muted font-sans text-sm md:text-base leading-relaxed tracking-wide mb-10 max-w-lg">
               {product.description}
             </p>
+
+            {/* Pricing Model Selection */}
+            <div className="space-y-4 mb-10">
+              <span className="font-cormorant text-2xl italic text-foreground block mb-4">Acquisition Model</span>
+              <fieldset className="flex flex-col gap-3">
+                <legend className="sr-only">Choose a pricing model</legend>
+                <label className="relative flex items-center justify-between p-5 border border-foreground cursor-pointer group transition-colors bg-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-foreground" />
+                    <span className="font-sans text-xs uppercase tracking-widest text-foreground">One-Time Acquisition</span>
+                  </div>
+                  <span className="font-sans text-xs tracking-widest text-foreground">RM{product.price}</span>
+                  <input type="radio" name="pricingModel" value="one-time" defaultChecked className="sr-only" />
+                </label>
+                <label className="relative flex items-center justify-between p-5 border border-white/10 cursor-pointer group hover:border-white/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-transparent border border-muted group-hover:border-foreground transition-colors" />
+                    <div className="flex flex-col">
+                      <span className="font-sans text-xs uppercase tracking-widest text-muted group-hover:text-foreground transition-colors">Curator's Allocation</span>
+                      <span className="font-cormorant italic text-sm text-muted group-hover:text-foreground transition-colors">Replenish every 3 months</span>
+                    </div>
+                  </div>
+                  <span className="font-sans text-xs tracking-widest text-muted group-hover:text-foreground transition-colors">RM{Math.round(product.price * 0.85)}</span>
+                  <input type="radio" name="pricingModel" value="subscription" className="sr-only" />
+                </label>
+              </fieldset>
+            </div>
 
             {/* Olfactive Pyramid */}
             <div className="space-y-4 mb-12">
@@ -176,9 +209,9 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              <MagneticButton 
+              <MagneticButton
                 onClick={handleAddToCart}
-                className={`w-full group relative overflow-hidden uppercase tracking-widest py-6 font-sans text-xs font-bold flex items-center justify-center transition-colors duration-500 ${product.stock > 0 ? 'bg-foreground text-background' : 'bg-surface text-muted cursor-not-allowed'}`}
+                className={`w-full max-w-full box-border group relative overflow-hidden uppercase tracking-widest py-6 px-4 font-sans text-xs font-bold flex items-center justify-center transition-colors duration-500 ${product.stock > 0 ? 'bg-foreground text-background' : 'bg-surface text-muted cursor-not-allowed'}`}
               >
                 {product.stock > 0 ? (
                   <>

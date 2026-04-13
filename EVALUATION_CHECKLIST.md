@@ -11,7 +11,7 @@
 - [x] **Product/Service Match:** Features "In-House" and "Artisan" fragrances categorized by notes.
 - [x] **Value Proposition (OVP):** "Eliminate The Blind-Buy Gamble" and interactive Scent Quiz strongly communicate the concept.
 - [x] **Target Audience Appeal:** Avant-garde, dark-mode layout aligns with the target demographic.
-- [ ] **Revenue Model Visibility:** Prices and pricing models are completely absent from the products.
+- [x] **Revenue Model Visibility:** Prices and pricing models (One-Time vs Curator's Allocation) are visible on the products.
 
 ### 🌟 3. UI/UX Quality
 - [ ] **No Broken Links:** Most navigation items and buttons have empty `href="#"` or lack click handlers.

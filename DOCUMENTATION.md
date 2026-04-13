@@ -35,9 +35,9 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 * **Accessibility:** Implements `prefers-reduced-motion` fallbacks. Custom silver focus rings (`:focus-visible`) replace standard browser outlines to preserve cinematic immersion without sacrificing a11y.
 
 ### 2.4 State Management
-* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, and simulate checkout processes without prop drilling.
-* **Quiz State:** Managed via isolated context (Zustand or React Context) ensuring the multi-step quiz avoids triggering cascading Virtual DOM updates.
-* **Persistence:** Mid-quiz progress synced to `sessionStorage` to recover states seamlessly upon accidental browser reloads.
+* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, and subtotal calculation without prop drilling.
+* **Quiz State:** Managed via local component state in `page.tsx` ensuring the multi-step quiz logic avoids triggering cascading Virtual DOM updates globally.
+* **Persistence:** Mid-quiz progress will be synced to `sessionStorage` to recover states seamlessly upon accidental browser reloads (Implementation Pending).
 
 ---
 

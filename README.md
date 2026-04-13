@@ -66,12 +66,12 @@ Guided by the **"Cinematic Minimalism"** and **ULTRATHINK** protocols:
 
 Following **Feature-Driven Development (FDD)**, the project is structured into 6 phases:
 
-* **Phase 1: Foundation & Architecture** - ✅ *Completed* (Landing page, shared UI, Next.js scaffolding).
-* **Phase 2: Core E-Commerce** - ✅ *Completed* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer, Zustand cart state, dummy checkout flow).
+* **Phase 1: Foundation & Architecture** - ✅ *Completed* (Landing page, shared UI, Next.js scaffolding, global state).
+* **Phase 2: Core E-Commerce** - ✅ *Completed (Core)* / ⏳ *Pending (Checkout)* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer, Zustand cart state).
 * **Phase 3: The ScentMatch Engine** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Quiz UI, Match results, State persistence).
-* **Phase 4: User Authentication** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, simulated `/account` dashboard and order history).
-* **Phase 5: Vendor Aggregator (B2B)** - ⏳ *Pending* (Onboarding, product mapping, commission tracking).
-* **Phase 6: Polish & Testing** - ⏳ *Pending* (WCAG audit, full-funnel E2E testing).
+* **Phase 4: User Authentication** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, `/account` dashboard UI).
+* **Phase 5: Vendor Aggregator (B2B)** - ⏳ *Pending* (Onboarding, vendor dashboard, product mapping, commission tracking).
+* **Phase 6: Polish & Testing** - ⏳ *Pending* (WCAG audit, performance optimization, full-funnel E2E testing).
 
 ## 🛠️ Getting Started
 
