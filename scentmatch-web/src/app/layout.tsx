@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   description: "Eliminate the blind-buy gamble.",
 };
 
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+const hasGoogleAnalyticsId =
+  Boolean(gaMeasurementId) && gaMeasurementId !== "G-XXXXXXXXXX";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,25 +49,28 @@ export default function RootLayout({
           {children}
         </SmoothScroll>
 
-        {/* Google Analytics Tracking */}
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX`}
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-XXXXXXXXXX', {
-                page_path: window.location.pathname,
-              });
-            `,
-          }}
-        />
+        {hasGoogleAnalyticsId ? (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+            />
+            <Script
+              id="google-analytics"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaMeasurementId}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        ) : null}
       </body>
     </html>
   );

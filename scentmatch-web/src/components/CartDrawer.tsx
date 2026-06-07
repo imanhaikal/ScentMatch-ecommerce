@@ -2,21 +2,21 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, ArrowRight, Lock } from "lucide-react";
+import { X, Minus, Plus, ArrowRight } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "./PremiumUI";
 
 export const CartDrawer = () => {
-  const { isOpen, closeCart, items, updateQuantity, removeItem, total, discount, discountCode, applyDiscount, removeDiscount } = useCartStore();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<"cart" | "form" | "processing" | "success">("cart");
-  const [promoInput, setPromoInput] = useState("");
+  const { isOpen, closeCart, items, updateQuantity, removeItem, setShopifyCart } = useCartStore();
+  const [checkoutStep, setCheckoutStep] = useState<"cart" | "processing">("cart");
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const cartTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => {
         setCheckoutStep("cart");
-        setIsCheckingOut(false);
+        setCheckoutError(null);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -27,18 +27,32 @@ export const CartDrawer = () => {
     closeCart();
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+
     setCheckoutStep("processing");
-    
-    // Simulate API call and processing
-    setTimeout(() => {
-      setCheckoutStep("success");
-      
-      setTimeout(() => {
-        useCartStore.getState().clearCart();
-        closeCart();
-      }, 2500);
-    }, 3000);
+    setCheckoutError(null);
+
+    try {
+      const response = await fetch("/api/cart/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lines: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+        }),
+      });
+      const payload = (await response.json()) as { cart?: { id: string; checkoutUrl: string }; error?: string };
+
+      if (!response.ok || !payload.cart) {
+        throw new Error(payload.error || "Unable to initiate Shopify checkout.");
+      }
+
+      setShopifyCart(payload.cart);
+      window.location.href = payload.cart.checkoutUrl;
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : "Unable to initiate Shopify checkout.");
+      setCheckoutStep("cart");
+    }
   };
 
   return (
@@ -66,13 +80,11 @@ export const CartDrawer = () => {
             <div className="flex items-center justify-between p-8 border-b border-white/5 bg-background z-20">
               <div className="flex flex-col gap-1">
                 <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">
-                  {checkoutStep === "form" ? "Secure Checkout" : checkoutStep === "cart" ? "Your Selection" : "Transaction"}
+                  {checkoutStep === "cart" ? "Your Selection" : "Shopify Checkout"}
                 </span>
-                {checkoutStep === "form" && (
-                  <span className="flex items-center gap-2 font-sans text-[8px] uppercase tracking-widest text-emerald-500">
-                    <Lock className="w-3 h-3" /> Encrypted Session
-                  </span>
-                )}
+                <span className="flex items-center gap-2 font-sans text-[8px] uppercase tracking-widest text-emerald-500">
+                  Secure payment handled by Shopify
+                </span>
               </div>
               <button
                 onClick={handleClose}
@@ -153,59 +165,9 @@ export const CartDrawer = () => {
                     )}
                   </motion.div>
                 )}
-
-                {/* FORM VIEW */}
-                {checkoutStep === "form" && (
-                  <motion.div
-                    key="checkout-form"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.4 }}
-                    className="h-full overflow-y-auto px-8 py-8 flex flex-col gap-12"
-                  >
-                    <div className="space-y-8">
-                      <h3 className="font-cormorant text-3xl italic border-b border-white/10 pb-4">Shipping Protocol</h3>
-                      <div className="space-y-6">
-                        <div className="relative group">
-                          <input type="text" id="fname" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="Full Name" />
-                          <label htmlFor="fname" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">Full Name</label>
-                        </div>
-                        <div className="relative group">
-                          <input type="email" id="email" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="Email Address" />
-                          <label htmlFor="email" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">Email Address</label>
-                        </div>
-                        <div className="relative group">
-                          <input type="text" id="address" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="Shipping Address" />
-                          <label htmlFor="address" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">Shipping Address</label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-8">
-                      <h3 className="font-cormorant text-3xl italic border-b border-white/10 pb-4">Financial Tender</h3>
-                      <div className="space-y-6">
-                        <div className="relative group">
-                          <input type="text" id="card" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="Card Number" />
-                          <label htmlFor="card" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">Card Number</label>
-                        </div>
-                        <div className="grid grid-cols-2 gap-8">
-                          <div className="relative group">
-                            <input type="text" id="exp" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="MM/YY" />
-                            <label htmlFor="exp" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">MM/YY</label>
-                          </div>
-                          <div className="relative group">
-                            <input type="text" id="cvc" className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" placeholder="CVC" />
-                            <label htmlFor="cvc" className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none">CVC</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
               </AnimatePresence>
 
-              {/* OVERLAYS FOR PROCESSING AND SUCCESS */}
+              {/* CHECKOUT HANDOFF OVERLAY */}
               <AnimatePresence>
                 {checkoutStep === "processing" && (
                   <motion.div
@@ -219,124 +181,41 @@ export const CartDrawer = () => {
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       className="w-16 h-16 border-t border-l border-foreground rounded-full animate-spin mb-8"
                     />
-                    <h2 className="font-cormorant text-4xl text-foreground italic mb-4 animate-pulse">Authenticating</h2>
-                    <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Encrypting transaction via secure channels</p>
-                  </motion.div>
-                )}
-                {checkoutStep === "success" && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-foreground text-background z-50 flex flex-col items-center justify-center p-8 text-center"
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", delay: 0.2 }}
-                      className="w-20 h-20 bg-background text-foreground rounded-full flex items-center justify-center mb-8"
-                    >
-                      <Lock className="w-8 h-8" />
-                    </motion.div>
-                    <h2 className="font-cormorant text-4xl italic mb-4">Transaction Complete</h2>
-                    <p className="font-sans text-[10px] uppercase tracking-[0.3em] opacity-70">Welcome to the Scentmatch Collection</p>
+                    <h2 className="font-cormorant text-4xl text-foreground italic mb-4 animate-pulse">Opening Checkout</h2>
+                    <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Creating a secure Shopify checkout session</p>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
             {/* Footer */}
-            {checkoutStep !== "processing" && checkoutStep !== "success" && (
+            {checkoutStep !== "processing" && (
               <div className="p-8 border-t border-white/5 bg-background z-20">
-                <div className="mb-6 flex flex-col gap-4 border-b border-white/5 pb-6">
-                  {discountCode ? (
-                    <div className="flex items-center justify-between">
-                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-emerald-500">
-                        Code {discountCode} applied
-                      </span>
-                      <button 
-                        onClick={removeDiscount}
-                        className="font-sans text-[9px] uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-end gap-4">
-                      <div className="relative flex-1 group">
-                        <input 
-                          type="text" 
-                          id="promo" 
-                          value={promoInput}
-                          onChange={(e) => setPromoInput(e.target.value)}
-                          className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" 
-                          placeholder="Promo Code" 
-                        />
-                        <label 
-                          htmlFor="promo" 
-                          className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none"
-                        >
-                          Promo Code
-                        </label>
-                      </div>
-                      <button 
-                        onClick={() => {
-                          applyDiscount(promoInput);
-                          setPromoInput("");
-                        }}
-                        className="font-sans text-[10px] uppercase tracking-[0.2em] text-foreground border-b border-foreground pb-2 hover:text-muted hover:border-transparent transition-colors"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {checkoutError && (
+                  <div className="mb-6 border border-red-500/30 bg-red-500/10 p-4 font-sans text-[10px] uppercase tracking-[0.2em] text-red-200">
+                    {checkoutError}
+                  </div>
+                )}
 
                 <div className="flex justify-between items-end mb-6">
                   <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Total Commitment</span>
                   <div className="flex flex-col items-end gap-1">
-                    {discount > 0 && (
-                      <span className="font-sans text-xs tracking-widest line-through text-muted">
-                        RM{total.toFixed(2)}
-                      </span>
-                    )}
                     <span className="font-sans text-xl tracking-widest leading-none">
-                      RM{(total * (1 - discount)).toFixed(2)}
+                      RM{cartTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>
                 
-                {checkoutStep === "cart" ? (
-                  <MagneticButton
-                    onClick={() => setCheckoutStep("form")}
-                    className={`w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
-                  >
-                    <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
-                    <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-between w-full px-4">
-                      <span>Initiate Acquisition</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
-                    </span>
-                  </MagneticButton>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    <MagneticButton
-                      onClick={handleCheckout}
-                      className="w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4"
-                    >
-                      <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
-                      <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-center gap-3">
-                        <span className="w-1.5 h-1.5 bg-background group-hover:bg-foreground rounded-full animate-pulse transition-colors" />
-                        Finalize Authorization
-                      </span>
-                    </MagneticButton>
-                    <button
-                      onClick={() => setCheckoutStep("cart")}
-                      className="font-sans text-[9px] uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors py-3 border border-transparent hover:border-white/10"
-                    >
-                      Return to Selections
-                    </button>
-                  </div>
-                )}
+                <MagneticButton
+                  onClick={handleCheckout}
+                  className={`w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
+                  <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-between w-full px-4">
+                    <span>Proceed to Shopify Checkout</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
+                  </span>
+                </MagneticButton>
               </div>
             )}
           </motion.div>

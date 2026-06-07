@@ -158,7 +158,14 @@ export const Noise = () => {
   );
 };
 
-export const MagneticButton = ({ children, onClick, className = "" }: { children: React.ReactNode; onClick?: () => void; className?: string }) => {
+type MagneticButtonProps = {
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+};
+
+export const MagneticButton = ({ children, onClick, className = "", disabled }: MagneticButtonProps) => {
   const ref = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -182,6 +189,7 @@ export const MagneticButton = ({ children, onClick, className = "" }: { children
       onMouseMove={handleMouse}
       onMouseLeave={reset}
       onClick={onClick}
+      disabled={disabled}
       animate={{ x, y }}
       transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
       className={`relative ${className}`}

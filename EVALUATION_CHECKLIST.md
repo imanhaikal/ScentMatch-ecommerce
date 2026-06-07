@@ -1,47 +1,90 @@
-# Group Project 25% Guidelines - Evaluation Status
+# ScentMatch Evaluation Checklist Audit
 
-### 🌟 1. Logic & User Flow
-- [x] **Clear Navigation:** Header/footer navigation exists, but crucial e-commerce links (Cart, User Account) are missing.
-- [x] **Seamless Purchasing Funnel:** No "Add to Cart", checkout flow, payment simulation, or order confirmation.
-- [x] **Search & Filter:** Search icon exists but is non-functional; no filtering logic for products.
-- [x] **User Account Logic:** Sign Up, Log In, Guest Checkout, and Order History are absent.
-- [x] **Consistent Branding:** Consistent "Cinematic Minimalism" aesthetic, custom cursors, and premium typography.
+This audit updates the original Group Project checklist into a current, evidence-based status review for the ScentMatch e-commerce prototype. It is based on the root project documents and the current `scentmatch-web/src` Next.js implementation.
 
-### 🌟 2. Alignment with Proposal
-- [x] **Product/Service Match:** Features "In-House" and "Artisan" fragrances categorized by notes.
-- [x] **Value Proposition (OVP):** "Eliminate The Blind-Buy Gamble" and interactive Scent Quiz strongly communicate the concept.
-- [x] **Target Audience Appeal:** Avant-garde, dark-mode layout aligns with the target demographic.
-- [x] **Revenue Model Visibility:** Prices and pricing models (One-Time vs Curator's Allocation) are visible on the products.
+Evaluation goal: prepare the prototype, written report, and presentation for the Group Project scoring areas: prototype quality, logic, proposal support, complete e-commerce elements, advanced analytics/data-science integration, and final demo readiness.
 
-### 🌟 3. UI/UX Quality
-- [x] **No Broken Links:** Most navigation items and buttons have empty `href="#"` or lack click handlers.
-- [x] **Mobile Responsiveness:** Robust responsive design via Tailwind ensures parity across mobile and tablet devices.
-- [x] **High-Quality Media:** High-resolution imagery with proper blending modes.
-- [x] **Loading Speed:** Uses high-priority fetching for hero images and hardware-accelerated transitions.
-- [x] **Smooth Checkout:** Cart state and UI are not implemented.
+> **Critical alignment note:** The current code uses Shopify Storefront API routes and Shopify checkout handoff, while some planning documents still describe WooCommerce/Dokan. Before submission, the report and presentation should use one platform story consistently or explicitly explain the pivot.
 
-### 🌟 4. Core E-Commerce Elements
-- [x] **Homepage:** Features an immersive hero section, marquee, and product grid.
-- [x] **Product Catalog:** Featured thumbnails exist on the homepage, but there is no dedicated catalog page or categories.
-- [x] **Product Pages:** Individual product detail pages (e.g., `/product/[id]`) do not exist.
-- [x] **Shopping Cart:** Cart slide-out/modal does not exist.
-- [x] **Checkout Simulation:** Dummy forms for shipping/billing/payment are absent.
-- [x] **Trust Signals:** No product reviews, ratings, or return policy links.
-- [x] **Customer Service:** No contact page, live chat, or FAQ section.
+**Status Legend**
 
-### 🌟 5. Advanced Integrations
-- [x] **Analytics Tracking:** Documented in `TASKS.md` but not integrated into the application.
-- [x] **Market Basket Analysis:** 'Frequently Bought Together' sections are absent.
-- [x] **Personalization/Recommendations:** The Scent Quiz acts as a recommendation engine, but standard passive recommendations are missing.
-- [x] **Dynamic Pricing/Promotions:** No discount codes or dynamic pricing UI.
-- [x] **Social Intermediaries:** Basic text links to social media exist, but functional "Login with Google/Facebook" is missing.
+- `[x]` Complete in current prototype.
+- `[ ]` Pending or not implemented.
+- `PARTIAL` Included, but incomplete, mocked, placeholder-only, or needs final proof.
 
 ---
 
-### 📋 Action Plan (What's Left To Be Done)
-- [x] **Product & Pricing Data:** Add visible prices to all products and create a dedicated `/shop` catalog page with functional search and filtering.
-- [x] **Product Detail Pages:** Create dynamic routing (`/product/[id]`) showing multiple images, descriptions, reviews, stock availability, and an "Add to Cart" button.
-- [x] **Cart & Checkout Flow:** Implement a shopping cart state (e.g., a slide-over component) and a simulated checkout process with dummy forms for shipping and payment.
-- [x] **User Authentication UI:** Add basic dummy pages for Login, Sign Up, and User Profile/Order History.
-- [x] **Trust & Support Pages:** Create static pages for FAQ, Contact, and Return Policies, and fix all broken (`href="#"`) links across the site.
-- [x] **Advanced Integrations:** Embed Google Analytics, add "Frequently Bought Together" sections on product pages, and display a promotional banner with a discount code.
+## 1. Logic And User Flow
+
+The journey from landing page to purchase should be intuitive, complete, and free of dead ends.
+
+- [x] **Clear Navigation:** Home, shop/collection, account, cart, FAQ, contact, returns, and product-detail journeys are available. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/app/shop/ShopClient.tsx`, `scentmatch-web/src/components/Footer.tsx`, `scentmatch-web/src/app/faq/page.tsx`, `scentmatch-web/src/app/contact/page.tsx`, `scentmatch-web/src/app/returns/page.tsx`.
+- [ ] PARTIAL **Mobile Navigation:** The interface uses responsive layouts, but the home header menu icon is currently inert and does not open a mobile drawer. Evidence: `scentmatch-web/src/app/HomeClient.tsx`.
+- [ ] PARTIAL **Seamless Purchasing Funnel:** Users can discover products, view details, add to cart, edit quantities, remove items, and hand off to Shopify checkout. Missing: local order confirmation page and full local shipping/billing/payment simulation. Evidence: `scentmatch-web/src/app/shop/ShopClient.tsx`, `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`, `scentmatch-web/src/components/CartDrawer.tsx`, `scentmatch-web/src/app/api/cart/create/route.ts`.
+- [x] **Search And Filter:** The shop page supports search by product name and olfactive notes, plus category filters for `All`, `Extract`, `Parfum`, and `Cologne`. Evidence: `scentmatch-web/src/app/shop/ShopClient.tsx`.
+- [ ] PARTIAL **User Account Logic:** Sign up, login, guest browsing, account dashboard, and order-history UI exist, but authentication and orders are mocked rather than connected to a real account backend. Evidence: `scentmatch-web/src/app/login/page.tsx`, `scentmatch-web/src/app/signup/page.tsx`, `scentmatch-web/src/app/account/page.tsx`.
+- [x] **Consistent Branding:** The dark cinematic palette, Geist/Cormorant typography, header/footer treatments, product cards, and motion language are consistent across primary routes. Evidence: `scentmatch-web/src/app/layout.tsx`, `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/components/Footer.tsx`, `scentmatch-web/src/components/PremiumUI.tsx`.
+
+## 2. Alignment With Proposal
+
+The prototype should support the Business Model Canvas, Marketspace Analysis, and written report narrative.
+
+- [x] **Product/Service Match:** The prototype sells premium fragrances positioned around in-house and artisan discovery, matching the ScentMatch digital sommelier concept. Evidence: `README.md`, `REQUIREMENTS.md`, `scentmatch-web/src/lib/shopify/products.ts`, `scentmatch-web/src/data/products.ts`.
+- [x] **Value Proposition:** The homepage immediately communicates the unique value with "The Digital Sommelier" and "Eliminate The Blind-Buy Gamble." Evidence: `scentmatch-web/src/app/HomeClient.tsx`.
+- [x] **Target Audience Appeal:** The cinematic, minimal, mobile-responsive luxury aesthetic aligns with the documented Gen Z/Millennial fragrance discovery audience. Evidence: `README.md`, `DESIGN.md`, `DOCUMENTATION.md`, `scentmatch-web/src/app/HomeClient.tsx`.
+- [ ] PARTIAL **Revenue Model Visibility:** One-time acquisition, subscription-style "Curator's Allocation," and first-purchase promo messaging exist. Missing: wired subscription checkout and promo-code application logic. Evidence: `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`, `scentmatch-web/src/components/PromoBanner.tsx`.
+- [ ] PARTIAL **Platform Architecture Alignment:** Requirements allow WooCommerce or Shopify, and current code uses Shopify. Several docs still describe WooCommerce/Dokan and should be aligned before submission. Evidence: `REQUIREMENTS.md`, `README.md`, `DOCUMENTATION.md`, `DESIGN.md`, `scentmatch-web/src/lib/shopify/client.ts`.
+- [ ] PARTIAL **B2B Vendor Aggregator Story:** The report/docs describe a B2B artisan vendor portal and commission model, but vendor onboarding/dashboard routes are not implemented in the current prototype. Evidence: `README.md`, `DOCUMENTATION.md`, `TASKS.md`.
+
+## 3. UI/UX Quality
+
+The prototype should feel complete, smooth, and credible on desktop, tablet, and mobile.
+
+- [ ] PARTIAL **No Broken Links:** Main navigation and support routes exist, but footer Terms/Privacy currently route to `/`, and the home mobile menu icon has no action. Evidence: `scentmatch-web/src/components/Footer.tsx`, `scentmatch-web/src/app/HomeClient.tsx`.
+- [ ] PARTIAL **Mobile Responsiveness:** Major pages use responsive Tailwind classes and mobile-friendly grids/forms. Final mobile/tablet QA is still required before claiming full compliance. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/app/shop/ShopClient.tsx`, `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`, `scentmatch-web/src/app/contact/page.tsx`.
+- [x] **High-Quality Media:** Hero imagery, product galleries, thumbnails, and detail images are implemented and sized for visual product exploration. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/app/shop/ShopClient.tsx`, `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`.
+- [ ] PARTIAL **Loading Speed:** Lazy product images and server-side product fetching are present, but no Lighthouse/build performance evidence is recorded yet. Evidence: `scentmatch-web/src/app/shop/ShopClient.tsx`, `scentmatch-web/src/app/page.tsx`, `scentmatch-web/src/app/shop/page.tsx`.
+- [x] **Smooth Cart Updates:** Add, remove, quantity update, cart count, and total recalculation are handled through the Zustand cart store. Evidence: `scentmatch-web/src/store/useCartStore.ts`, `scentmatch-web/src/components/CartDrawer.tsx`.
+- [ ] PARTIAL **Accessibility:** Forms, buttons, alt text, and an `aria-live` quiz region exist in places, but no formal WCAG audit has been completed. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/app/login/page.tsx`, `scentmatch-web/src/app/signup/page.tsx`, `TASKS.md`.
+
+## 4. Core E-Commerce Elements
+
+A complete e-commerce prototype needs discoverability, product details, cart, checkout, trust, and support.
+
+- [x] **Homepage:** Includes hero value proposition, Scent Quiz CTA, featured products, promo banner, and collection CTA. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `scentmatch-web/src/components/PromoBanner.tsx`.
+- [x] **Product Catalog:** Includes product grid, thumbnails, pricing, artisan labels, category filtering, and search. Evidence: `scentmatch-web/src/app/shop/ShopClient.tsx`.
+- [x] **Product Pages:** Include gallery images, descriptions, price, stock availability, olfactive notes, acquisition model, reviews, and add-to-cart. Evidence: `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`.
+- [ ] PARTIAL **Shopping Cart:** Cart shows items, quantities, remove controls, and total. Missing: explicit subtotal, tax, and shipping fee breakdown. Evidence: `scentmatch-web/src/components/CartDrawer.tsx`, `scentmatch-web/src/store/useCartStore.ts`.
+- [ ] PARTIAL **Checkout Simulation:** Cart creates a Shopify checkout session and redirects to Shopify. Missing: local dummy shipping address, billing address, payment method forms, and local order confirmation page. Evidence: `scentmatch-web/src/components/CartDrawer.tsx`, `scentmatch-web/src/app/api/cart/create/route.ts`.
+- [x] **Trust Signals:** Product reviews/ratings, return policy, FAQ, contact page, and secure Shopify checkout messaging are present. Evidence: `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`, `scentmatch-web/src/app/returns/page.tsx`, `scentmatch-web/src/app/faq/page.tsx`, `scentmatch-web/src/app/contact/page.tsx`, `scentmatch-web/src/components/CartDrawer.tsx`.
+- [ ] PARTIAL **Customer Service:** Contact page and FAQ exist, but live chat or dummy chatbot is not implemented. Evidence: `scentmatch-web/src/app/contact/page.tsx`, `scentmatch-web/src/app/faq/page.tsx`.
+- [ ] **Order Confirmation:** No `/checkout/success` or equivalent local confirmation route is implemented. Evidence: `TASKS.md`.
+
+## 5. Advanced Integrations
+
+The project prompt and lectures emphasize analytics, data science, personalization, and marketspace ecosystem features.
+
+- [ ] PARTIAL **Analytics Tracking:** GA script tags are included, but the measurement ID is the placeholder `G-XXXXXXXXXX`, and custom funnel events/dashboard proof are not implemented. Evidence: `scentmatch-web/src/app/layout.tsx`, `TASKS.md`.
+- [x] **Market Basket Analysis / Cross-Selling:** Product pages include a "Frequently Bought Together" recommendation section. Evidence: `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`.
+- [ ] PARTIAL **Personalization / Recommendations:** The Scent Quiz simulates personalized match and zero-match fallback states, but it does not call a real matching API or persist quiz state. Evidence: `scentmatch-web/src/app/HomeClient.tsx`, `TASKS.md`.
+- [ ] PARTIAL **Dynamic Pricing / Promotions:** `SCENT20` promo messaging and subscription-style pricing UI are visible, but discount-code application and dynamic pricing logic are not wired into cart/checkout. Evidence: `scentmatch-web/src/components/PromoBanner.tsx`, `scentmatch-web/src/app/product/[id]/ProductDetailClient.tsx`, `REQUIREMENTS.md`.
+- [x] **Social Intermediaries:** Instagram footer link and Google/Facebook login buttons are present. Evidence: `scentmatch-web/src/components/Footer.tsx`, `scentmatch-web/src/app/login/page.tsx`, `scentmatch-web/src/app/signup/page.tsx`.
+- [ ] **Vendor / Marketplace Integration:** B2B vendor onboarding, vendor dashboard, scent mapping, and commission tracking are not implemented in the prototype UI. Evidence: `TASKS.md`, `README.md`, `DOCUMENTATION.md`.
+
+## Final Submission Priorities
+
+1. Resolve the Shopify vs WooCommerce platform story across `README.md`, `DOCUMENTATION.md`, `DESIGN.md`, `REQUIREMENTS.md`, and the presentation.
+2. Replace placeholder GA measurement ID with a real configurable ID or clearly label analytics as a prototype simulation; add evidence screenshots/dashboard notes if available.
+3. Add or document the checkout/order confirmation story: Shopify handoff is acceptable if the report explains it as the secure checkout/payment layer.
+4. Add cart price breakdown evidence or update the prototype to show subtotal, tax, and shipping if required by the marking rubric.
+5. Validate mobile navigation and the main purchase funnel on mobile/tablet before the demo.
+6. Add a short peer-test log before presentation to prove the journey does not confuse first-time users.
+7. Prepare the demo script: home value prop -> quiz -> shop search/filter -> product detail -> add to cart -> Shopify checkout handoff -> account/order history -> FAQ/contact/returns -> analytics explanation.
+
+## Final Polish Before Submission
+
+- [ ] **Peer Test:** Have a peer from outside the group test the site and record any friction points.
+- [ ] **Architecture Statement:** Confirm the chosen commerce platform is clearly stated and justified in the report under Architecture and Platform.
+- [ ] **Presentation Deck:** Highlight prototype logic, EC elements, checkout approach, ScentMatch data-science story, and analytics tracking plan within the 15-minute limit.
+- [ ] **Demo Data:** Ensure Shopify products, product images, cart creation, and checkout handoff are available in the demo environment.
+- [ ] **Evidence Pack:** Capture screenshots or short clips for homepage, quiz, catalog filter/search, product detail, cart, checkout handoff, account/order history, support pages, and analytics/dashboard proof.

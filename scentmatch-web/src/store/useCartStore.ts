@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 export interface CartItem {
   id: string;
+  variantId: string;
   name: string;
   artisan: string;
   price: number;
@@ -17,25 +18,24 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
-  discount: number;
-  discountCode: string | null;
+  shopifyCartId: string | null;
+  checkoutUrl: string | null;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  setShopifyCart: (cart: { id: string; checkoutUrl: string }) => void;
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  applyDiscount: (code: string) => void;
-  removeDiscount: () => void;
   get total(): number;
 }
 
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
   isOpen: false,
-  discount: 0,
-  discountCode: null,
+  shopifyCartId: null,
+  checkoutUrl: null,
   addItem: (item) => {
     set((state) => {
       const existing = state.items.find((i) => i.id === item.id);
@@ -56,16 +56,11 @@ export const useCartStore = create<CartStore>((set, get) => ({
     set((state) => ({
       items: state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
     })),
-  clearCart: () => set({ items: [] }),
+  clearCart: () => set({ items: [], shopifyCartId: null, checkoutUrl: null }),
+  setShopifyCart: (cart) => set({ shopifyCartId: cart.id, checkoutUrl: cart.checkoutUrl }),
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
   openCart: () => set({ isOpen: true }),
   closeCart: () => set({ isOpen: false }),
-  applyDiscount: (code) => {
-    if (code.toUpperCase() === 'SCENT20') {
-      set({ discount: 0.2, discountCode: 'SCENT20' });
-    }
-  },
-  removeDiscount: () => set({ discount: 0, discountCode: null }),
   get total() {
     return get().items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   },
