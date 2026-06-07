@@ -42,3 +42,4 @@ next-env.d.ts
 
 .agents/
 .kilocode/
+skills-lock.json
