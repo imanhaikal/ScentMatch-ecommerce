@@ -30,11 +30,11 @@
 - [x] **Customer Service:** No contact page, live chat, or FAQ section.
 
 ### 🌟 5. Advanced Integrations
-- [ ] **Analytics Tracking:** Documented in `TASKS.md` but not integrated into the application.
-- [ ] **Market Basket Analysis:** 'Frequently Bought Together' sections are absent.
-- [-] **Personalization/Recommendations:** The Scent Quiz acts as a recommendation engine, but standard passive recommendations are missing.
-- [ ] **Dynamic Pricing/Promotions:** No discount codes or dynamic pricing UI.
-- [-] **Social Intermediaries:** Basic text links to social media exist, but functional "Login with Google/Facebook" is missing.
+- [x] **Analytics Tracking:** Documented in `TASKS.md` but not integrated into the application.
+- [x] **Market Basket Analysis:** 'Frequently Bought Together' sections are absent.
+- [x] **Personalization/Recommendations:** The Scent Quiz acts as a recommendation engine, but standard passive recommendations are missing.
+- [x] **Dynamic Pricing/Promotions:** No discount codes or dynamic pricing UI.
+- [x] **Social Intermediaries:** Basic text links to social media exist, but functional "Login with Google/Facebook" is missing.
 
 ---
 
@@ -44,4 +44,4 @@
 - [x] **Cart & Checkout Flow:** Implement a shopping cart state (e.g., a slide-over component) and a simulated checkout process with dummy forms for shipping and payment.
 - [x] **User Authentication UI:** Add basic dummy pages for Login, Sign Up, and User Profile/Order History.
 - [x] **Trust & Support Pages:** Create static pages for FAQ, Contact, and Return Policies, and fix all broken (`href="#"`) links across the site.
-- [ ] **Advanced Integrations:** Embed Google Analytics, add "Frequently Bought Together" sections on product pages, and display a promotional banner with a discount code.
+- [x] **Advanced Integrations:** Embed Google Analytics, add "Frequently Bought Together" sections on product pages, and display a promotional banner with a discount code.

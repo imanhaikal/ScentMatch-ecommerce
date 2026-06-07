@@ -7,9 +7,10 @@ import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "./PremiumUI";
 
 export const CartDrawer = () => {
-  const { isOpen, closeCart, items, updateQuantity, removeItem, total } = useCartStore();
+  const { isOpen, closeCart, items, updateQuantity, removeItem, total, discount, discountCode, applyDiscount, removeDiscount } = useCartStore();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"cart" | "form" | "processing" | "success">("cart");
+  const [promoInput, setPromoInput] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -247,9 +248,62 @@ export const CartDrawer = () => {
             {/* Footer */}
             {checkoutStep !== "processing" && checkoutStep !== "success" && (
               <div className="p-8 border-t border-white/5 bg-background z-20">
+                <div className="mb-6 flex flex-col gap-4 border-b border-white/5 pb-6">
+                  {discountCode ? (
+                    <div className="flex items-center justify-between">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-emerald-500">
+                        Code {discountCode} applied
+                      </span>
+                      <button 
+                        onClick={removeDiscount}
+                        className="font-sans text-[9px] uppercase tracking-[0.2em] text-muted hover:text-foreground transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-end gap-4">
+                      <div className="relative flex-1 group">
+                        <input 
+                          type="text" 
+                          id="promo" 
+                          value={promoInput}
+                          onChange={(e) => setPromoInput(e.target.value)}
+                          className="w-full bg-transparent border-b border-white/20 pb-2 pt-4 font-sans text-xs tracking-widest uppercase placeholder:text-transparent peer focus:outline-none focus:border-foreground transition-colors" 
+                          placeholder="Promo Code" 
+                        />
+                        <label 
+                          htmlFor="promo" 
+                          className="absolute left-0 top-0 font-sans text-[9px] uppercase tracking-[0.2em] text-muted peer-focus:text-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs transition-all pointer-events-none"
+                        >
+                          Promo Code
+                        </label>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          applyDiscount(promoInput);
+                          setPromoInput("");
+                        }}
+                        className="font-sans text-[10px] uppercase tracking-[0.2em] text-foreground border-b border-foreground pb-2 hover:text-muted hover:border-transparent transition-colors"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-between items-end mb-6">
                   <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Total Commitment</span>
-                  <span className="font-sans text-xl tracking-widest leading-none">RM{total.toFixed(2)}</span>
+                  <div className="flex flex-col items-end gap-1">
+                    {discount > 0 && (
+                      <span className="font-sans text-xs tracking-widest line-through text-muted">
+                        RM{total.toFixed(2)}
+                      </span>
+                    )}
+                    <span className="font-sans text-xl tracking-widest leading-none">
+                      RM{(total * (1 - discount)).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
                 
                 {checkoutStep === "cart" ? (

@@ -32,6 +32,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Accommodate the fixed global promotional banner */
+header.fixed {
+  top: 2rem !important; /* height of h-8 banner */
+}
+
 /* Focus styles for keyboard accessibility */
 :focus-visible {
   outline: 2px solid var(--color-foreground);

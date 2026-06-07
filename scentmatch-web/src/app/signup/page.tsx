@@ -100,7 +100,36 @@ export default function SignupPage() {
               Create Account
             </button>
 
-            <div className="flex flex-col items-center space-y-4 text-xs tracking-widest uppercase text-muted mt-8">
+            <div className="flex items-center justify-center space-x-4 pt-4">
+              <div className="h-[1px] bg-white/10 w-full" />
+              <span className="text-xs tracking-widest uppercase text-muted whitespace-nowrap px-2">Or continue with</span>
+              <div className="h-[1px] bg-white/10 w-full" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                aria-label="Continue with Google"
+                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-foreground hover:border-white/60 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+                </svg>
+                <span>Google</span>
+              </button>
+              <button
+                type="button"
+                aria-label="Continue with Facebook"
+                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-foreground hover:border-white/60 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7.5v4H10V22h4v-8.5z"/>
+                </svg>
+                <span>Facebook</span>
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center space-y-4 text-xs tracking-widest uppercase text-muted pt-4">
               <Link href="/login" className="hover:text-foreground transition-colors border-b border-transparent hover:border-foreground pb-1">
                 Already have an account? Sign In
               </Link>

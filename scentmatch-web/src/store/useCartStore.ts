@@ -17,6 +17,8 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  discount: number;
+  discountCode: string | null;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -24,12 +26,16 @@ interface CartStore {
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
+  applyDiscount: (code: string) => void;
+  removeDiscount: () => void;
   get total(): number;
 }
 
 export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
   isOpen: false,
+  discount: 0,
+  discountCode: null,
   addItem: (item) => {
     set((state) => {
       const existing = state.items.find((i) => i.id === item.id);
@@ -54,6 +60,12 @@ export const useCartStore = create<CartStore>((set, get) => ({
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
   openCart: () => set({ isOpen: true }),
   closeCart: () => set({ isOpen: false }),
+  applyDiscount: (code) => {
+    if (code.toUpperCase() === 'SCENT20') {
+      set({ discount: 0.2, discountCode: 'SCENT20' });
+    }
+  },
+  removeDiscount: () => set({ discount: 0, discountCode: null }),
   get total() {
     return get().items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   },

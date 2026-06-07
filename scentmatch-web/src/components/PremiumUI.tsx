@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { motion, useSpring, useTransform, useScroll, useMotionValue, useMotionTemplate } from "framer-motion";
+import { motion, useTransform, useMotionValue, useMotionTemplate } from "framer-motion";
 import Lenis from "lenis";
 
 export const SmoothScroll = ({ children }: { children: React.ReactNode }) => {
@@ -27,58 +27,6 @@ export const SmoothScroll = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return <>{children}</>;
-};
-
-export const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-
-  const cursorX = useSpring(position.x, { stiffness: 150, damping: 15, mass: 0.5 });
-  const cursorY = useSpring(position.y, { stiffness: 150, damping: 15, mass: 0.5 });
-
-  useEffect(() => {
-    // Hide default cursor
-    document.body.style.cursor = "none";
-
-    const moveCursor = (e: MouseEvent) => {
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button, a, input, select, [data-cursor="hover"]')) {
-        setIsHovered(true);
-      } else {
-        setIsHovered(false);
-      }
-    };
-
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleMouseOver);
-
-    return () => {
-      document.body.style.cursor = "auto";
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mouseover", handleMouseOver);
-    };
-  }, [cursorX, cursorY]);
-
-  return (
-    <motion.div
-      className="fixed top-0 left-0 w-6 h-6 rounded-full pointer-events-none z-[9999] mix-blend-difference bg-foreground"
-      style={{
-        x: cursorX,
-        y: cursorY,
-        translateX: "-50%",
-        translateY: "-50%",
-      }}
-      animate={{
-        scale: isHovered ? 2.5 : 1,
-        opacity: isHovered ? 1 : 1,
-      }}
-      transition={{ type: "tween", ease: "backOut", duration: 0.3 }}
-    />
-  );
 };
 
 export const MouseSpotlight = () => {

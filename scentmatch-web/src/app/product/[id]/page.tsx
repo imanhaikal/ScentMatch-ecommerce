@@ -16,6 +16,7 @@ export default function ProductDetailPage() {
   const { addItem, openCart, items } = useCartStore();
   
   const [product, setProduct] = useState<Product | null>(null);
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
@@ -23,6 +24,15 @@ export default function ProductDetailPage() {
     const found = PRODUCTS.find((p) => p.id === id);
     if (found) {
       setProduct(found);
+      
+      let recs = PRODUCTS.filter((p) => p.id !== id && p.category === found.category);
+      if (recs.length < 3) {
+        const others = PRODUCTS.filter((p) => p.id !== id && p.category !== found.category);
+        recs = [...recs, ...others].slice(0, 3);
+      } else {
+        recs = recs.slice(0, 3);
+      }
+      setRecommendations(recs);
     } else {
       router.push("/shop");
     }
@@ -229,6 +239,38 @@ export default function ProductDetailPage() {
               </MagneticButton>
             </div>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Frequently Bought Together */}
+      <div className="w-full border-t border-white/5 py-32 px-8 md:px-16">
+        <div className="max-w-[100rem] mx-auto flex flex-col items-center">
+          <span className="text-muted font-sans text-[10px] uppercase tracking-[0.3em] mb-4 block text-center">Complementary Selection</span>
+          <h2 className="text-4xl md:text-5xl font-cormorant font-light text-foreground leading-none mb-16 italic text-center">
+            Frequently Bought Together
+          </h2>
+          
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {recommendations.map((rec) => (
+              <div key={rec.id} className="group flex flex-col">
+                <Link href={`/product/${rec.id}`} className="block relative overflow-hidden bg-surface aspect-[3/4] mb-6">
+                  <img src={rec.images[0]} alt={rec.name} className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:scale-105 group-hover:opacity-100 transition-all duration-1000" />
+                </Link>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-muted font-sans text-[9px] uppercase tracking-[0.2em] mb-2 block">{rec.artisan}</span>
+                    <Link href={`/product/${rec.id}`} className="text-xl md:text-2xl font-cormorant text-foreground italic hover:opacity-70 transition-opacity">
+                      {rec.name}
+                    </Link>
+                  </div>
+                  <span className="font-sans text-xs tracking-widest text-foreground">RM{rec.price}</span>
+                </div>
+                <Link href={`/product/${rec.id}`} className="mt-6 border-b border-white/20 pb-2 text-[10px] font-sans uppercase tracking-[0.2em] text-muted hover:text-foreground hover:border-foreground transition-colors w-fit">
+                  View Product
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
