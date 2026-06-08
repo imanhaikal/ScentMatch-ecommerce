@@ -9,11 +9,41 @@ const shopifyCsvOutputPath = path.join(__dirname, '..', 'shopify_products.csv');
 const rawCsv = fs.readFileSync(csvPath, 'utf8');
 const lines = rawCsv.split('\n').filter(line => line.trim().length > 0);
 
+function parseCsvLine(line) {
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      i += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === ',' && !inQuotes) {
+      values.push(current.trim());
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  values.push(current.trim());
+  return values;
+}
+
 // Headers: brand,perfume,type,category,target_audience,longevity
-const records = lines.slice(1).map(line => {
-  const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-  return cols.map(c => c.replace(/^"|"$/g, '').trim());
-}).filter(cols => cols.length >= 6);
+const records = lines.slice(1).map(parseCsvLine).filter(cols => cols.length >= 6);
 
 const actualImages = {
   "club de nuit intense man": "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop", // placeholder until real URLs are found, could use duckduckgo
@@ -76,6 +106,14 @@ function slugify(text) {
     .replace(/-+$/, '');            // Trim - from end of text
 }
 
+function deterministicImageIndex(seed, offset = 0) {
+  let hash = offset;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return hash % genericImages.length;
+}
+
 const parsedProducts = records.map((cols, i) => {
   const brand = capitalize(cols[0] || 'Unknown Brand');
   const perfumeRaw = cols[1] || 'Unknown Perfume';
@@ -94,13 +132,13 @@ const parsedProducts = records.map((cols, i) => {
   
   if (actualImages[perfumeLower]) {
     image1 = actualImages[perfumeLower];
-    image2 = genericImages[Math.floor(Math.random() * genericImages.length)];
+    image2 = genericImages[deterministicImageIndex(perfumeLower, 17)];
   } else {
-    // Generate two distinct random indices
-    const rand1 = Math.floor(Math.random() * genericImages.length);
-    let rand2 = Math.floor(Math.random() * genericImages.length);
-    while (rand2 === rand1 && genericImages.length > 1) {
-      rand2 = Math.floor(Math.random() * genericImages.length);
+    const imageSeed = `${brand} ${perfumeRaw}`.toLowerCase();
+    const rand1 = deterministicImageIndex(imageSeed, 0);
+    let rand2 = deterministicImageIndex(imageSeed, 17);
+    if (rand2 === rand1 && genericImages.length > 1) {
+      rand2 = (rand2 + 1) % genericImages.length;
     }
     image1 = genericImages[rand1];
     image2 = genericImages[rand2];

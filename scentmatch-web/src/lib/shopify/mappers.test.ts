@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { mapShopifyProduct, mapShopifyProducts } from "./mappers";
+import { mapLocalProduct, mapShopifyProduct, mapShopifyProducts } from "./mappers";
 
 const shopifyProduct = {
   id: "gid://shopify/Product/1",
   handle: "santal-vol-1",
   title: "Santal Vol. 1",
+  vendor: "Le Labo",
   description: "Sandalwood wrapped in cedar.",
   featuredImage: { url: "https://cdn.shopify.com/santal.jpg", altText: "Bottle" },
   images: {
@@ -63,6 +64,7 @@ describe("Shopify product mappers", () => {
   it("falls back safely when optional Shopify metafields are missing", () => {
     const product = mapShopifyProduct({
       ...shopifyProduct,
+      vendor: "",
       featuredImage: null,
       images: { edges: [] },
       artisan: null,
@@ -82,10 +84,28 @@ describe("Shopify product mappers", () => {
 
   it("maps GraphQL edges into product arrays", () => {
     const products = mapShopifyProducts({
+      pageInfo: { hasNextPage: false, endCursor: null },
       edges: [{ node: shopifyProduct }],
     });
 
     expect(products).toHaveLength(1);
     expect(products[0].handle).toBe("santal-vol-1");
+  });
+
+  it("maps local fallback products to prototype-purchasable variants", () => {
+    expect(
+      mapLocalProduct({
+        id: "perfume-1",
+        name: "Nitro Red",
+        artisan: "Dumont",
+        price: 150,
+        images: ["red.jpg"],
+        description: "Fallback product",
+        category: "Parfum",
+        stock: 10,
+        notes: { top: "Scent", heart: "Aromatic", base: "Strong" },
+        reviews: [],
+      }).variantId,
+    ).toBe("local:perfume-1");
   });
 });

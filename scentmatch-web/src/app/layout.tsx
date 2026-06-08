@@ -5,6 +5,7 @@ import Script from "next/script";
 import { SmoothScroll, Noise, MouseSpotlight } from "@/components/PremiumUI";
 import { CartDrawer } from "@/components/CartDrawer";
 import { PromoBanner } from "@/components/PromoBanner";
+import { SupportChatbot } from "@/components/SupportChatbot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
   description: "Eliminate the blind-buy gamble.",
 };
 
-const gaMeasurementId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+const gaMeasurementId = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? process.env.NEXT_PUBLIC_GA_ID)?.trim();
 const hasGoogleAnalyticsId =
   Boolean(gaMeasurementId) && gaMeasurementId !== "G-XXXXXXXXXX";
 
@@ -46,6 +47,7 @@ export default function RootLayout({
           <Noise />
           <PromoBanner />
           <CartDrawer />
+          <SupportChatbot />
           {children}
         </SmoothScroll>
 

@@ -29,7 +29,7 @@ The platform serves four primary actors:
 ### 2. Core E-Commerce (B2C)
 * **Premium Catalog (`/shop`):** A cinematic, high-performance product grid driven by Intentional Minimalism, featuring advanced olfactive filtering and fluid asynchronous rendering.
 * **Product Detail Pages (`/product/[id]`):** Bespoke layouts with advanced pricing displays, olfactive pyramids, and robust WebKit sticky scrolling fixes to ensure perfect visual hierarchy across devices.
-* **Frictionless Checkout (`CartDrawer.tsx`):** A highly polished, slide-out shopping cart orchestrated by a `framer-motion` state machine, complete with a simulated secure checkout overlay.
+* **Frictionless Checkout (`CartDrawer.tsx`, `/checkout`, `/checkout/success`):** A polished cart with estimated subtotal, `SCENT20` promo logic, tax/shipping breakdown, local checkout simulation, order confirmation, and Shopify secure checkout handoff.
 * **Order Management:** Automated status tracking from processing to delivery.
 * **Trust & Support Infrastructure:** Cinematic, static pages for FAQ, Contact, and Return Policies designed to eliminate purchase friction.
 * **Refined Navigation:** Polished routing logic across the Header and Footer to ensure an unbroken, immersive journey.
@@ -50,9 +50,9 @@ ScentMatch employs a **Decoupled Headless Architecture** to combine peak fronten
 * **Data Management:** Centralized local module (`src/data/products.ts`) acting as the Single Source of Truth (SSOT) for product definitions and pricing.
 
 ### Backend E-Commerce Engine
-* **Platform:** Headless WooCommerce (WordPress).
-* **B2B Integration:** Multi-vendor plugins (e.g., Dokan) for vendor aggregation.
-* **Data Integration:** Custom REST/GraphQL APIs (e.g., `POST /api/scentmatch/calculate`).
+* **Platform:** Shopify Storefront API for product/cart data, with Shopify checkout as the secure production payment layer.
+* **B2B Integration:** Prototype Next.js vendor routes (`/vendors/apply`, `/vendor/dashboard`) demonstrate onboarding, scent mapping, and commission tracking without requiring a live marketplace backend.
+* **Data Integration:** Next.js App Router routes bridge prototype logic: `POST /api/cart/create`, `POST /api/scentmatch/calculate`, and `POST /api/vendor/onboard`.
 
 ### Analytics & Tracking
 * **Google Analytics 4 (GA4):** Custom event tracking for critical business metrics: Quiz Drop-off Rate, Match Conversion Rate, and Traffic Sources.
@@ -71,10 +71,10 @@ Following **Feature-Driven Development (FDD)**, the project is structured into 6
 
 * **Phase 1: Foundation & Architecture** - ✅ *Completed* (Landing page, shared UI, Next.js scaffolding, global state).
 * **Phase 2: Core E-Commerce** - ✅ *Completed* (Catalog grid with filtering, dynamic product pages, Framer Motion Cart Drawer with simulated secure checkout, polished navigation, Zustand cart state).
-* **Phase 3: The ScentMatch Engine** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Quiz UI, Match results, State persistence).
-* **Phase 4: User Authentication & Support** - ✅ *Completed (UI)* / ⏳ *Pending (Logic)* (Minimalist login/signup pages, `/account` dashboard UI, Trust & Support pages).
-* **Phase 5: Vendor Aggregator (B2B)** - ⏳ *Pending* (Onboarding, vendor dashboard, product mapping, commission tracking).
-* **Phase 6: Polish & Testing** - ⏳ *Pending* (WCAG audit, performance optimization, full-funnel E2E testing).
+* **Phase 3: The ScentMatch Engine** - ✅ *Completed for prototype* (Quiz UI, API-backed matching, match/fallback results, State persistence).
+* **Phase 4: User Authentication & Support** - ✅ *Completed as UI simulation* (Login/signup pages, `/account` dashboard, feedback UI, Trust & Support pages, chatbot).
+* **Phase 5: Vendor Aggregator (B2B)** - ✅ *Completed as prototype* (Onboarding, vendor dashboard, product mapping, commission tracking).
+* **Phase 6: Polish & Testing** - ⏳ *Evidence pending* (Automated tests exist; peer-test log, screenshots, and GA dashboard proof require final group capture).
 
 ## 🛠️ Getting Started
 

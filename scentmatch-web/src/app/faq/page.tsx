@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { Footer } from "@/components/Footer";
-import Link from "next/link";
-import { useCartStore } from "@/store/useCartStore";
+import { SiteHeader } from "@/components/SiteHeader";
 
 const FAQ_DATA = [
   {
@@ -27,40 +26,11 @@ const FAQ_DATA = [
 ];
 
 export default function FAQPage() {
-  const { openCart, items } = useCartStore();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  
-  const totalCartItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <main className="min-h-screen bg-background font-sans flex flex-col pt-32">
-      {/* Minimalist Header */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-8 md:px-16 py-6">
-        <Link href="/" className="flex items-center gap-2 cursor-pointer z-50">
-          <h2 className="text-2xl md:text-3xl font-cormorant font-bold leading-none tracking-tighter uppercase text-foreground ml-[-0.05em]">
-            Scentmatch
-          </h2>
-        </Link>
-        <div className="flex items-center gap-6 z-50">
-          <Link href="/shop" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Shop</span>
-          </Link>
-          <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
-          </Link>
-          <button 
-            onClick={openCart}
-            className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
-            {totalCartItems > 0 && (
-              <span className="bg-foreground text-background text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
-                {totalCartItems}
-              </span>
-            )}
-          </button>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Content Area */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 md:px-16 pb-32 w-full max-w-4xl mx-auto">

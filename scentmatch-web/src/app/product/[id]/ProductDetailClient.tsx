@@ -9,16 +9,18 @@ import { MagneticButton } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
 import type { ScentProduct } from "@/lib/shopify/types";
+import { SiteHeader } from "@/components/SiteHeader";
+import { trackEvent } from "@/lib/analytics";
 
 export default function ProductDetailClient({ product, recommendations }: { product: ScentProduct; recommendations: ScentProduct[] }) {
   const router = useRouter();
-  const { addItem, openCart, items } = useCartStore();
+  const { addItem, openCart } = useCartStore();
   
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [pricingModel, setPricingModel] = useState<"one-time" | "subscription">("one-time");
   const canPurchase = product.stock > 0 && Boolean(product.variantId);
-
-  const totalCartItems = items.reduce((acc, item) => acc + item.quantity, 0);
+  const selectedPrice = pricingModel === "subscription" ? Math.round(product.price * 0.85) : product.price;
 
   const handleAddToCart = () => {
     if (!canPurchase) return;
@@ -29,47 +31,22 @@ export default function ProductDetailClient({ product, recommendations }: { prod
     // Let's loop if user selected > 1
     for (let i = 0; i < quantity; i++) {
       addItem({
-        id: product.id,
+        id: pricingModel === "subscription" ? `${product.id}:subscription` : product.id,
         variantId: product.variantId,
-        name: product.name,
+        name: pricingModel === "subscription" ? `${product.name} (Curator's Allocation)` : product.name,
         artisan: product.artisan,
-        price: product.price,
+        price: selectedPrice,
         image: product.images[0],
         notes: product.notes
       });
     }
+    trackEvent("add_to_cart", { product_id: product.id, product_name: product.name, source: "product", pricing_model: pricingModel, quantity });
     openCart();
   };
 
   return (
     <main className="min-h-screen bg-background font-sans flex flex-col pt-32">
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-8 md:px-16 py-6">
-        <Link href="/" className="flex items-center gap-2 cursor-pointer z-50">
-          <h2 className="text-2xl md:text-3xl font-cormorant font-bold leading-none tracking-tighter uppercase text-foreground ml-[-0.05em]">
-            Scentmatch
-          </h2>
-        </Link>
-        <div className="flex items-center gap-6 z-50">
-          <Link href="/shop" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Shop</span>
-          </Link>
-          <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
-          </Link>
-          <button 
-            onClick={openCart}
-            className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
-            {totalCartItems > 0 && (
-              <span className="bg-foreground text-background text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
-                {totalCartItems}
-              </span>
-            )}
-          </button>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Product Area */}
       <div className="flex-1 flex flex-col lg:flex-row max-w-[100rem] mx-auto w-full px-8 md:px-16 gap-16 lg:gap-24 mb-32">
@@ -148,16 +125,16 @@ export default function ProductDetailClient({ product, recommendations }: { prod
               <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted block border-b border-white/10 pb-4">Acquisition Model</span>
               <fieldset className="flex flex-col gap-4">
                 <legend className="sr-only">Choose a pricing model</legend>
-                <label className="relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent border-white/20 hover:border-foreground">
+                <label className={`relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent hover:border-foreground ${pricingModel === "one-time" ? "border-foreground" : "border-white/20"}`}>
                   <div className="flex items-center gap-6">
                     <div className="w-1.5 h-1.5 bg-foreground group-hover:scale-150 transition-transform duration-500" />
                     <span className="font-sans text-xs uppercase tracking-widest text-foreground group-hover:translate-x-2 transition-transform duration-500">One-Time Acquisition</span>
                   </div>
                   <span className="font-sans text-xs tracking-widest text-foreground">RM{product.price}</span>
-                  <input type="radio" name="pricingModel" value="one-time" defaultChecked className="sr-only" />
-                  <div className="absolute inset-0 border border-foreground opacity-100 pointer-events-none transition-opacity" />
+                  <input type="radio" name="pricingModel" value="one-time" checked={pricingModel === "one-time"} onChange={() => setPricingModel("one-time")} className="sr-only" />
+                  <div className={`absolute inset-0 border border-foreground pointer-events-none transition-opacity ${pricingModel === "one-time" ? "opacity-100" : "opacity-0"}`} />
                 </label>
-                <label className="relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent border-white/5 hover:border-white/40 opacity-50 hover:opacity-100 grayscale hover:grayscale-0">
+                <label className={`relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent hover:border-white/40 ${pricingModel === "subscription" ? "border-foreground opacity-100" : "border-white/5 opacity-50 hover:opacity-100 grayscale hover:grayscale-0"}`}>
                   <div className="flex items-center gap-6">
                     <div className="w-1.5 h-1.5 bg-transparent border border-muted group-hover:bg-muted transition-colors duration-500" />
                     <div className="flex flex-col gap-1">
@@ -166,7 +143,7 @@ export default function ProductDetailClient({ product, recommendations }: { prod
                     </div>
                   </div>
                   <span className="font-sans text-xs tracking-widest text-foreground">RM{Math.round(product.price * 0.85)}</span>
-                  <input type="radio" name="pricingModel" value="subscription" className="sr-only" />
+                  <input type="radio" name="pricingModel" value="subscription" checked={pricingModel === "subscription"} onChange={() => setPricingModel("subscription")} className="sr-only" />
                   <div className="absolute inset-0 border border-transparent group-hover:border-white/40 pointer-events-none transition-colors" />
                 </label>
               </fieldset>

@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { PRODUCTS } from "@/data/products";
+import { SiteHeader } from "@/components/SiteHeader";
 
 // Dummy data
 const user = {
@@ -51,8 +52,11 @@ const itemVariants = {
 };
 
 export default function AccountPage() {
+  const [feedback, setFeedback] = React.useState<Record<string, number>>({});
+
   return (
     <main className="min-h-screen bg-background pt-32 pb-24 px-6 md:px-12 lg:px-24">
+      <SiteHeader showSearch={false} />
       <div className="max-w-6xl mx-auto">
         <motion.div 
           initial="hidden"
@@ -88,6 +92,12 @@ export default function AccountPage() {
                 <Link href="/" className="text-xs text-muted hover:text-foreground transition-colors tracking-widest uppercase border-b border-transparent hover:border-foreground pb-1">
                   Sign Out
                 </Link>
+              </div>
+
+              <div className="pt-8 border-t border-white/10">
+                <p className="text-xs text-muted tracking-widest uppercase mb-3">Saved Scent Profile</p>
+                <p className="text-sm text-foreground font-light leading-relaxed">Woodland Cabin / Vintage Warm / Mysterious</p>
+                <p className="text-xs text-muted mt-3 leading-relaxed">Prototype profile synced from the Scent Quiz session and used to explain match conversion tracking.</p>
               </div>
             </div>
           </motion.div>
@@ -133,6 +143,27 @@ export default function AccountPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="mt-8 border border-white/10 p-5">
+                    <p className="mb-4 text-[10px] uppercase tracking-[0.25em] text-muted">14-day match feedback</p>
+                    {feedback[order.id] ? (
+                      <p className="text-xs uppercase tracking-[0.2em] text-emerald-300">Recorded {feedback[order.id]}/5 for algorithm weighting.</p>
+                    ) : (
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((rating) => (
+                          <button
+                            key={rating}
+                            type="button"
+                            onClick={() => setFeedback((state) => ({ ...state, [order.id]: rating }))}
+                            className="h-9 w-9 border border-white/10 text-xs text-muted transition-colors hover:border-foreground hover:text-foreground"
+                            aria-label={`Rate ${order.id} ${rating} out of 5`}
+                          >
+                            {rating}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}

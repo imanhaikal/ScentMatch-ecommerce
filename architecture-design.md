@@ -38,7 +38,7 @@ The core mission of ScentMatch is to eliminate the "blind-buy" gamble in fragran
   - *Atoms:* Base typography scales, 1px silver borders, primary/secondary button variants.
   - *Molecules:* Scent Quiz input cards, Product aspect-ratio locked containers.
   - *Organisms:* The full-bleed hero section, the Vendor Dashboard table.
-- **Decoupled Architecture:** As the backend is WooCommerce, the frontend must act as a Headless UI (e.g., Next.js or Nuxt) consuming data via GraphQL/REST. This prevents WordPress's monolithic structure from dictating our cinematic frontend performance.
+- **Decoupled Architecture:** The current prototype uses Shopify Storefront API plus Next.js App Router routes. The frontend remains a headless cinematic UI while Shopify provides catalog/cart/checkout reliability and local Next.js routes demonstrate matching, checkout simulation, and vendor workflows.
 
 ---
 

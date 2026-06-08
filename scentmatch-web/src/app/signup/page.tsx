@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ export default function SignupPage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col justify-center items-center px-6 relative overflow-hidden pt-24 pb-12">
+      <SiteHeader showSearch={false} />
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[120px] pointer-events-none" />
 

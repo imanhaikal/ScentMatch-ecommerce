@@ -54,6 +54,6 @@ export function mapLocalProduct(product: Product): ScentProduct {
     handle: product.id,
     title: product.name,
     currencyCode: "MYR",
-    variantId: "",
+    variantId: `local:${product.id}`,
   };
 }

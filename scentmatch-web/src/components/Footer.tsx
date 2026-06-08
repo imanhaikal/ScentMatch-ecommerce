@@ -31,7 +31,8 @@ export const Footer = () => {
                 { name: "Collection", path: "/shop" },
                 { name: "FAQ", path: "/faq" },
                 { name: "Contact", path: "/contact" },
-                { name: "Returns", path: "/returns" }
+                { name: "Returns", path: "/returns" },
+                { name: "Vendor", path: "/vendors/apply" }
               ].map((item) => (
                 <MagneticButton key={item.name} className="w-fit md:w-full md:justify-end">
                   <Link href={item.path} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] hover:italic hover:text-muted transition-all duration-500 flex items-center gap-2">
@@ -62,8 +63,8 @@ export const Footer = () => {
             
             <div className="flex gap-8">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Instagram</a>
-              <Link href="/" className="hover:text-foreground transition-colors">Terms</Link>
-              <Link href="/" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             </div>
           </div>
         </div>

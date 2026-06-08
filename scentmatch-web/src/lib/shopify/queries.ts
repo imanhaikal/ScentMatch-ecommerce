@@ -54,9 +54,14 @@ const PRODUCT_FIELDS = `#graphql
 export const PRODUCTS_QUERY = `#graphql
   ${PRODUCT_FIELDS}
 
-  query ScentProducts($first: Int!) {
-    products(first: $first) {
+  query ScentProducts($first: Int!, $after: String, $query: String) {
+    products(first: $first, after: $after, query: $query) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
+        cursor
         node {
           ...ScentProductFields
         }

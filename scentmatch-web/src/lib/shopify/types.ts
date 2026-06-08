@@ -66,6 +66,10 @@ export interface ShopifyProductNode {
 }
 
 export interface ShopifyProductConnection {
+  pageInfo: {
+    hasNextPage: boolean;
+    endCursor: string | null;
+  };
   edges: Array<{ node: ShopifyProductNode }>;
 }
 

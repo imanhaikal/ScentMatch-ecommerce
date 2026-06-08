@@ -2,13 +2,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { Sparkles, X, Menu, Search, ArrowUpRight, Plus } from "lucide-react";
+import { Sparkles, X, ArrowUpRight, Plus } from "lucide-react";
 import { MagneticButton, SplitText, InfiniteMarquee, TiltCard } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
 import { useCartStore } from "@/store/useCartStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ScentProduct } from "@/lib/shopify/types";
+import { SiteHeader } from "@/components/SiteHeader";
+import { trackEvent } from "@/lib/analytics";
+import type { ScentMatchResult } from "@/lib/scentmatch/matcher";
+
+const QUIZ_STORAGE_KEY = "scentmatch:quiz:v1";
 
 // -- ANIMATION VARIANTS --
 const revealVariants = {
@@ -41,80 +46,6 @@ const PrimaryButton = ({ children, onClick, className = "" }: { children: React.
     </span>
   </MagneticButton>
 );
-
-// Navigation
-const Navigation = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const { openCart, items } = useCartStore();
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
-
-  return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-700 flex items-center justify-between px-8 md:px-16 py-6 ${
-        scrolled ? "bg-background/50 backdrop-blur-xl border-b border-white/5" : "bg-transparent border-b border-transparent"
-      }`}
-    >
-      <Link href="/" className="flex items-center gap-2 cursor-pointer z-50">
-        <h2 className="text-2xl md:text-3xl font-cormorant font-bold leading-none tracking-tighter uppercase text-foreground ml-[-0.05em]">
-          Scentmatch
-        </h2>
-      </Link>
-      <nav className="hidden md:flex items-center gap-12 absolute left-1/2 -translate-x-1/2">
-        <Link href="/shop">
-          <MagneticButton className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
-            <span className="relative overflow-hidden flex flex-col">
-              <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">Collection</span>
-              <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">Collection</span>
-            </span>
-          </MagneticButton>
-        </Link>
-        {[
-          { name: "FAQ", path: "/faq" },
-          { name: "Contact", path: "/contact" }
-        ].map((item) => (
-          <Link key={item.name} href={item.path}>
-            <MagneticButton className="text-foreground text-xs uppercase tracking-widest font-sans font-medium group">
-              <span className="relative overflow-hidden flex flex-col">
-                <span className="group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item.name}</span>
-                <span className="absolute top-full left-0 group-hover:-translate-y-full transition-transform duration-500 ease-[0.76,0,0.24,1]">{item.name}</span>
-              </span>
-            </MagneticButton>
-          </Link>
-        ))}
-      </nav>
-      <div className="flex items-center gap-6 z-50">
-        <button onClick={() => router.push("/shop?search=true")} className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2">
-          <Search className="w-4 h-4" />
-        </button>
-        <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-          <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
-        </Link>
-        <button 
-          onClick={openCart}
-          className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2"
-        >
-          <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
-          {totalItems > 0 && (
-            <span className="bg-foreground text-background text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
-              {totalItems}
-            </span>
-          )}
-        </button>
-        <button className="text-foreground hover:opacity-50 transition-opacity ml-2">
-          <Menu className="w-6 h-6" />
-        </button>
-      </div>
-    </header>
-  );
-};
 
 // Hero Section
 const Hero = ({ onQuizStart }: { onQuizStart: () => void }) => {
@@ -204,24 +135,70 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<"match" | "zero" | null>(null);
+  const [result, setResult] = useState<ScentMatchResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSelect = (option: string) => {
-    setAnswers({ ...answers, [QUIZ_STEPS[step].id]: option });
+  useEffect(() => {
+    try {
+      const rawState = window.sessionStorage.getItem(QUIZ_STORAGE_KEY);
+      if (!rawState) return;
+      const parsed = JSON.parse(rawState) as { step?: number; answers?: Record<string, string>; result?: ScentMatchResult };
+      if (typeof parsed.step === "number" && parsed.step >= 0 && parsed.step < QUIZ_STEPS.length) setStep(parsed.step);
+      if (parsed.answers && typeof parsed.answers === "object") setAnswers(parsed.answers);
+      if (parsed.result?.matches) setResult(parsed.result);
+    } catch {
+      window.sessionStorage.removeItem(QUIZ_STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify({ step, answers, result }));
+  }, [step, answers, result]);
+
+  const handleSelect = async (option: string) => {
+    const nextAnswers = { ...answers, [QUIZ_STEPS[step].id]: option };
+    setAnswers(nextAnswers);
+    trackEvent("quiz_step_answered", { step: QUIZ_STEPS[step].id, answer: option });
+
     if (step < QUIZ_STEPS.length - 1) {
       setStep(step + 1);
     } else {
       setAnalyzing(true);
-      setTimeout(() => {
-        setAnalyzing(false);
-        if (answers["environment"] === "Ocean Breeze" && option === "Avant-Garde") {
-          setResult("zero");
-        } else {
-          setResult("match");
+      setError(null);
+      try {
+        const response = await fetch("/api/scentmatch/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: nextAnswers }),
+        });
+        const payload = (await response.json()) as ScentMatchResult & { error?: string };
+
+        if (!response.ok || !payload.matches) {
+          throw new Error(payload.error ?? "Unable to calculate scent profile.");
         }
-      }, 3500);
+
+        setResult(payload);
+        trackEvent(payload.result === "match" ? "quiz_completed" : "quiz_zero_match", {
+          match_count: payload.matches.length,
+          top_score: payload.matches[0]?.score ?? 0,
+        });
+      } catch (quizError) {
+        setError(quizError instanceof Error ? quizError.message : "Unable to calculate scent profile.");
+      } finally {
+        setAnalyzing(false);
+      }
     }
   };
+
+  const handleRestart = () => {
+    setStep(0);
+    setAnswers({});
+    setResult(null);
+    setError(null);
+    window.sessionStorage.removeItem(QUIZ_STORAGE_KEY);
+  };
+
+  const topMatch = result?.matches[0];
 
   return (
     <motion.div
@@ -237,7 +214,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
 
       <div className="w-full max-w-4xl px-8 md:px-16 relative" aria-live="polite">
         <AnimatePresence mode="wait">
-          {!analyzing && !result && (
+          {!analyzing && !result && !error && (
             <motion.div
               key={`step-${step}`}
               initial={{ opacity: 0, y: 20 }}
@@ -293,7 +270,20 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
             </motion.div>
           )}
 
-          {result === "match" && (
+          {error && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center flex flex-col items-center"
+            >
+              <h2 className="text-5xl md:text-7xl font-cormorant text-foreground mb-8 italic">Curator Offline</h2>
+              <p className="text-muted font-sans text-sm tracking-wide max-w-lg leading-relaxed mb-12">{error} Explore the archive while our concierge refines your profile.</p>
+              <PrimaryButton onClick={onClose}>Discover Collection</PrimaryButton>
+            </motion.div>
+          )}
+
+          {result?.result === "match" && topMatch && (
             <motion.div
               key="match"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -301,31 +291,34 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
               className="text-center flex flex-col items-center"
             >
-              <span className="text-muted font-sans uppercase tracking-[0.3em] mb-6 text-[10px]">94% Match Accuracy Found</span>
+              <span className="text-muted font-sans uppercase tracking-[0.3em] mb-6 text-[10px]">{topMatch.score}% Match Accuracy Found</span>
               <h2 className="text-5xl md:text-7xl font-cormorant text-foreground mb-16 italic">Your Signature Profile</h2>
               
               <div className="relative p-[1px] w-full max-w-2xl bg-gradient-to-b from-white/20 to-transparent mb-12">
                 <div className="bg-background p-12 flex flex-col md:flex-row items-center gap-12 text-left">
                   <div className="w-40 h-56 relative overflow-hidden bg-surface">
-                    <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover scale-110" alt="Matched perfume" loading="lazy" />
+                    <img src={topMatch.images[0]} className="w-full h-full object-cover scale-110" alt={topMatch.name} loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-4xl font-cormorant text-foreground mb-2">Nocturne 04</h3>
-                    <p className="text-muted font-sans text-xs uppercase tracking-[0.2em] mb-8">Artisan: Lumiere</p>
+                    <h3 className="text-4xl font-cormorant text-foreground mb-2">{topMatch.name}</h3>
+                    <p className="text-muted font-sans text-xs uppercase tracking-[0.2em] mb-8">Artisan: {topMatch.artisan}</p>
                     <div className="space-y-4 font-sans text-[10px] text-muted uppercase tracking-[0.2em]">
-                      <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-foreground">Top</span><span>Bergamot</span></div>
-                      <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-foreground">Heart</span><span>Black Tea</span></div>
-                      <div className="flex justify-between"><span className="text-foreground">Base</span><span>Oud</span></div>
+                      <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-foreground">Top</span><span>{topMatch.notes.top}</span></div>
+                      <div className="flex justify-between border-b border-white/10 pb-2"><span className="text-foreground">Heart</span><span>{topMatch.notes.heart}</span></div>
+                      <div className="flex justify-between"><span className="text-foreground">Base</span><span>{topMatch.notes.base}</span></div>
                     </div>
                   </div>
                 </div>
               </div>
-              <PrimaryButton onClick={onClose}>Discover Collection</PrimaryButton>
+              <div className="flex flex-col md:flex-row gap-4">
+                <PrimaryButton onClick={onClose}>Discover Collection</PrimaryButton>
+                <MagneticButton onClick={handleRestart} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] border-b border-foreground pb-1">Restart Profile</MagneticButton>
+              </div>
             </motion.div>
           )}
 
-          {result === "zero" && (
+          {result?.result === "zero" && (
             <motion.div
               key="zero"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -338,19 +331,23 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
                 Your profile is exceptionally unique. While our artisans refine your bespoke match, explore these universal signatures crafted for the avant-garde.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl mb-12">
-                {[1, 2].map((i) => (
-                  <div key={i} className="group cursor-pointer">
+                {result.matches.slice(0, 2).map((match) => (
+                  <Link href={`/product/${match.handle}`} key={match.id} className="group cursor-pointer">
                     <div className="h-64 bg-surface w-full mb-6 overflow-hidden relative">
+                      <img src={match.images[0]} alt={match.name} className="h-full w-full object-cover opacity-70 mix-blend-luminosity transition-all duration-700 group-hover:scale-105 group-hover:mix-blend-normal" />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10" />
                     </div>
                     <div className="text-left">
-                      <h4 className="text-foreground font-cormorant text-3xl mb-2 group-hover:italic transition-all">Universal 0{i}</h4>
-                      <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">Minimalist & Clean</p>
+                      <h4 className="text-foreground font-cormorant text-3xl mb-2 group-hover:italic transition-all">{match.name}</h4>
+                      <p className="text-muted font-sans text-[10px] uppercase tracking-[0.2em]">{match.reasons[0]}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
-              <MagneticButton onClick={onClose} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] border-b border-foreground pb-1">Return</MagneticButton>
+              <div className="flex gap-6">
+                <MagneticButton onClick={onClose} className="text-foreground font-sans text-xs uppercase tracking-[0.2em] border-b border-foreground pb-1">Return</MagneticButton>
+                <MagneticButton onClick={handleRestart} className="text-muted hover:text-foreground font-sans text-xs uppercase tracking-[0.2em] border-b border-white/20 pb-1">Restart</MagneticButton>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -444,6 +441,7 @@ const ProductSection = ({ products }: { products: ScentProduct[] }) => {
                   onClick={() => {
                     if (!canPurchase) return;
                     addItem({ id: prod.id, variantId: prod.variantId, name: prod.name, artisan: prod.artisan, price: prod.price, image: prod.images[0], notes: prod.notes });
+                    trackEvent("add_to_cart", { product_id: prod.id, product_name: prod.name, source: "home" });
                     useCartStore.getState().openCart();
                   }}
                   disabled={!canPurchase}
@@ -465,10 +463,15 @@ const ProductSection = ({ products }: { products: ScentProduct[] }) => {
 export default function HomeClient({ products }: { products: ScentProduct[] }) {
   const [quizOpen, setQuizOpen] = useState(false);
 
+  const openQuiz = () => {
+    setQuizOpen(true);
+    trackEvent("quiz_started");
+  };
+
   return (
     <main className="min-h-screen bg-background font-sans">
-      <Navigation />
-      <Hero onQuizStart={() => setQuizOpen(true)} />
+      <SiteHeader transparentUntilScroll />
+      <Hero onQuizStart={openQuiz} />
       <InfiniteMarquee text="The Digital Sommelier • Find Your Scent" />
       <ProductSection products={products} />
       

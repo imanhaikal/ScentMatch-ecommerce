@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Plus, ChevronDown } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton, TiltCard } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import type { ScentProduct } from "@/lib/shopify/types";
+import type { ScentCategory, ScentProduct } from "@/lib/shopify/types";
+import { SiteHeader } from "@/components/SiteHeader";
+import { trackEvent } from "@/lib/analytics";
+
+interface ShopClientProps {
+  products: ScentProduct[];
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  searchQuery: string;
+  selectedCategory: ScentCategory | "All";
+}
 
 // --- ANIMATIONS ---
 const containerVariants = {
@@ -30,14 +41,15 @@ const itemVariants = {
   exit: { opacity: 0, scale: 0.95, transition: { duration: 0.4 } }
 };
 
-function ShopContent({ products }: { products: ScentProduct[] }) {
+function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, searchQuery: initialSearchQuery, selectedCategory }: ShopClientProps) {
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isSearchOpenFromNav = searchParams.get("search") === "true";
 
-  const { addItem, openCart, items } = useCartStore();
+  const { addItem, openCart } = useCartStore();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Focus search input if routed via nav search icon
@@ -47,58 +59,87 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
     }
   }, [isSearchOpenFromNav]);
 
-  const categories = ["All", "Extract", "Parfum", "Cologne"];
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
 
-  // Filtering Logic
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchCategory = selectedCategory === "All" || product.category === selectedCategory;
-      const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.notes.top.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.notes.heart.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.notes.base.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCategory && matchSearch;
-    });
-  }, [products, searchQuery, selectedCategory]);
+  useEffect(() => {
+    const nextQuery = searchQuery.trim();
 
-  const totalCartItems = items.reduce((acc, item) => acc + item.quantity, 0);
+    if (nextQuery === initialSearchQuery) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("search");
+      params.set("page", "1");
+
+      if (nextQuery) {
+        params.set("q", nextQuery);
+      } else {
+        params.delete("q");
+      }
+
+      router.replace(`${pathname}?${params.toString()}`);
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [initialSearchQuery, pathname, router, searchParams, searchQuery]);
+
+  const categories: Array<ScentCategory | "All"> = ["All", "Extract", "Parfum", "Cologne"];
+  const filteredProducts = products;
+
+  const pageLabel = currentPage.toString().padStart(2, "0");
+  const previousPage = Math.max(currentPage - 1, 1);
+  const nextPage = currentPage + 1;
+  const pageHref = (page: number) => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+
+    if (initialSearchQuery) {
+      params.set("q", initialSearchQuery);
+    }
+
+    if (selectedCategory !== "All") {
+      params.set("type", selectedCategory);
+    }
+
+    return `/shop?${params.toString()}`;
+  };
+
+  const handleCategorySelect = (category: ScentCategory | "All") => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.set("page", "1");
+
+    if (initialSearchQuery) {
+      params.set("q", initialSearchQuery);
+    } else {
+      params.delete("q");
+    }
+
+    if (category === "All") {
+      params.delete("type");
+    } else {
+      params.set("type", category);
+    }
+
+    trackEvent("shop_filter", { category });
+    router.replace(`${pathname}?${params.toString()}`);
+    setIsFilterOpen(false);
+  };
 
   return (
     <main className="min-h-screen bg-background font-sans flex flex-col pt-32">
-      {/* Minimalist Header / Navbar Overlay (Reusing simple layout for consistency) */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-8 md:px-16 py-6">
-        <Link href="/" className="flex items-center gap-2 cursor-pointer z-50">
-          <h2 className="text-2xl md:text-3xl font-cormorant font-bold leading-none tracking-tighter uppercase text-foreground ml-[-0.05em]">
-            Scentmatch
-          </h2>
-        </Link>
-        <div className="flex items-center gap-6 z-50">
-          <Link href="/" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Home</span>
-          </Link>
-          <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
-          </Link>
-          <button 
-            onClick={openCart}
-            className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
-            {totalCartItems > 0 && (
-              <span className="bg-foreground text-background text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
-                {totalCartItems}
-              </span>
-            )}
-          </button>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col px-8 md:px-16 pb-32">
         <div className="max-w-[100rem] mx-auto w-full flex flex-col lg:flex-row gap-16 lg:gap-24 relative">
           
           {/* LEFT: Filters & Search (Sticky on Desktop) */}
-          <aside className="w-full lg:w-1/3 lg:sticky lg:top-40 flex flex-col gap-12 z-10 pr-0 lg:pr-12">
+          <aside className="w-full lg:w-1/3 lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain flex flex-col gap-12 z-10 pr-0 lg:pr-12 lg:pb-8">
             <div>
               <p className="text-muted font-sans text-[10px] uppercase tracking-[0.4em] mb-6">
                 Discover your signature
@@ -115,7 +156,10 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                 type="text"
                 placeholder="SEARCH ARCHIVE"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (e.target.value.trim()) trackEvent("shop_search", { query: e.target.value.trim() });
+                }}
                 className="w-full bg-transparent border-b-2 border-white/20 pb-4 font-sans text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted/30 focus:outline-none focus:border-foreground transition-all rounded-none"
               />
               <Search className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 text-muted group-focus-within:text-foreground transition-colors pointer-events-none" />
@@ -132,7 +176,7 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                 {categories.map((cat, idx) => (
                   <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => handleCategorySelect(cat)}
                     className={`text-left group flex items-center gap-6 transition-all duration-500`}
                   >
                     <span className={`font-sans text-[9px] tracking-widest text-muted group-hover:text-foreground transition-colors`}>
@@ -166,7 +210,7 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                     {categories.map((cat, idx) => (
                       <button
                         key={cat}
-                        onClick={() => setSelectedCategory(cat)}
+                        onClick={() => handleCategorySelect(cat)}
                         className={`text-left font-cormorant text-3xl transition-all duration-300 ${selectedCategory === cat ? 'text-foreground italic' : 'text-muted'}`}
                       >
                         <span className="font-sans text-[9px] tracking-widest mr-4 opacity-50">0{idx + 1}</span>
@@ -187,7 +231,7 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                 <span className="font-sans text-xs uppercase tracking-widest text-muted">Adjust your parameters</span>
               </div>
             ) : (
-              <motion.div 
+              <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -245,9 +289,10 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                         </Link>
                         <MagneticButton 
                           onClick={() => {
-                            if (!canPurchase) return;
-                            addItem({ id: prod.id, variantId: prod.variantId, name: prod.name, artisan: prod.artisan, price: prod.price, image: prod.images[0], notes: prod.notes });
-                            openCart();
+                             if (!canPurchase) return;
+                             addItem({ id: prod.id, variantId: prod.variantId, name: prod.name, artisan: prod.artisan, price: prod.price, image: prod.images[0], notes: prod.notes });
+                            trackEvent("add_to_cart", { product_id: prod.id, product_name: prod.name, source: "shop" });
+                             openCart();
                           }}
                           disabled={!canPurchase}
                           className={`w-12 h-12 shrink-0 rounded-full border border-white/10 flex items-center justify-center text-foreground transition-colors duration-500 z-10 relative ${canPurchase ? "hover:bg-foreground hover:text-background" : "opacity-30 cursor-not-allowed"}`}
@@ -261,6 +306,39 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
                 </AnimatePresence>
               </motion.div>
             )}
+
+            {(hasPreviousPage || hasNextPage) && (
+              <nav
+                aria-label="Shop pagination"
+                className="mt-24 flex w-full items-center justify-between border-t border-white/10 pt-8 font-sans text-[10px] uppercase tracking-[0.25em]"
+              >
+                {hasPreviousPage ? (
+                  <Link
+                    href={pageHref(previousPage)}
+                    className="text-muted transition-colors duration-300 hover:text-foreground"
+                  >
+                    Previous
+                  </Link>
+                ) : (
+                  <span className="text-muted/30" aria-disabled="true">Previous</span>
+                )}
+
+                <span className="font-cormorant text-3xl normal-case tracking-normal text-foreground">
+                  Page {pageLabel}
+                </span>
+
+                {hasNextPage ? (
+                  <Link
+                    href={pageHref(nextPage)}
+                    className="text-muted transition-colors duration-300 hover:text-foreground"
+                  >
+                    Next
+                  </Link>
+                ) : (
+                  <span className="text-muted/30" aria-disabled="true">Next</span>
+                )}
+              </nav>
+            )}
           </div>
         </div>
       </div>
@@ -270,10 +348,10 @@ function ShopContent({ products }: { products: ScentProduct[] }) {
   );
 }
 
-export default function ShopClient({ products }: { products: ScentProduct[] }) {
+export default function ShopClient(props: ShopClientProps) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-muted font-sans text-xs uppercase tracking-widest">Loading Archive...</div>}>
-      <ShopContent products={products} />
+      <ShopContent {...props} />
     </Suspense>
   );
 }

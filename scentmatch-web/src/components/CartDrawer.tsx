@@ -3,14 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "./PremiumUI";
+import { calculateCartPricing } from "@/lib/cart/pricing";
+import { trackEvent } from "@/lib/analytics";
+
+const PROMO_STORAGE_KEY = "scentmatch:promo:v1";
 
 export const CartDrawer = () => {
+  const router = useRouter();
   const { isOpen, closeCart, items, updateQuantity, removeItem, setShopifyCart } = useCartStore();
   const [checkoutStep, setCheckoutStep] = useState<"cart" | "processing">("cart");
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const cartTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const [promoInput, setPromoInput] = useState("");
+  const [activePromo, setActivePromo] = useState("");
+  const pricing = calculateCartPricing(items, activePromo);
+  const canUseShopifyCheckout = items.length > 0 && items.every((item) => item.variantId.startsWith("gid://shopify/ProductVariant/"));
 
   useEffect(() => {
     if (!isOpen) {
@@ -29,9 +38,14 @@ export const CartDrawer = () => {
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
+    if (!canUseShopifyCheckout) {
+      setCheckoutError("Shopify checkout requires live Shopify variant IDs. Use the local checkout simulation for fallback demo products.");
+      return;
+    }
 
     setCheckoutStep("processing");
     setCheckoutError(null);
+    trackEvent("shopify_checkout_started", { value: pricing.total, items: items.length });
 
     try {
       const response = await fetch("/api/cart/create", {
@@ -53,6 +67,30 @@ export const CartDrawer = () => {
       setCheckoutError(error instanceof Error ? error.message : "Unable to initiate Shopify checkout.");
       setCheckoutStep("cart");
     }
+  };
+
+  const handleApplyPromo = () => {
+    setActivePromo(promoInput);
+    const nextPricing = calculateCartPricing(items, promoInput);
+
+    if (nextPricing.promo.isApplied) {
+      window.sessionStorage.setItem(PROMO_STORAGE_KEY, nextPricing.promo.code);
+      trackEvent("promo_applied", { code: nextPricing.promo.code, discount: nextPricing.discount });
+    } else {
+      window.sessionStorage.removeItem(PROMO_STORAGE_KEY);
+    }
+  };
+
+  const handlePrototypeCheckout = () => {
+    if (items.length === 0) return;
+
+    if (pricing.promo.isApplied) {
+      window.sessionStorage.setItem(PROMO_STORAGE_KEY, pricing.promo.code);
+    }
+
+    trackEvent("checkout_started", { checkout_type: "local_simulation", value: pricing.total, items: items.length });
+    closeCart();
+    router.push("/checkout");
   };
 
   return (
@@ -139,6 +177,7 @@ export const CartDrawer = () => {
                                 <div className="flex items-center gap-5 border border-white/10 rounded-none px-4 py-2">
                                   <button
                                     onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                                    aria-label={`Decrease quantity for ${item.name}`}
                                     className="text-muted hover:text-foreground transition-colors"
                                   >
                                     <Minus className="w-3 h-3" />
@@ -146,6 +185,7 @@ export const CartDrawer = () => {
                                   <span className="font-sans text-[10px] tracking-widest">{item.quantity}</span>
                                   <button
                                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                    aria-label={`Increase quantity for ${item.name}`}
                                     className="text-muted hover:text-foreground transition-colors"
                                   >
                                     <Plus className="w-3 h-3" />
@@ -153,6 +193,7 @@ export const CartDrawer = () => {
                                 </div>
                                 <button
                                   onClick={() => removeItem(item.id)}
+                                  aria-label={`Remove ${item.name} from cart`}
                                   className="font-sans text-[9px] uppercase tracking-[0.2em] text-muted hover:text-foreground border-b border-transparent hover:border-foreground transition-all pb-[1px]"
                                 >
                                   Remove
@@ -197,22 +238,60 @@ export const CartDrawer = () => {
                   </div>
                 )}
 
-                <div className="flex justify-between items-end mb-6">
-                  <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Total Commitment</span>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-sans text-xl tracking-widest leading-none">
-                      RM{cartTotal.toFixed(2)}
-                    </span>
+                <div className="mb-6 border border-white/10 p-4">
+                  <label htmlFor="promo-code" className="mb-3 block font-sans text-[9px] uppercase tracking-[0.3em] text-muted">
+                    Prototype promo code
+                  </label>
+                  <div className="flex gap-3">
+                    <input
+                      id="promo-code"
+                      value={promoInput}
+                      onChange={(event) => setPromoInput(event.target.value)}
+                      placeholder="SCENT20"
+                      className="min-w-0 flex-1 rounded-none border-b border-white/20 bg-transparent pb-2 font-sans text-xs uppercase tracking-[0.2em] text-foreground outline-none placeholder:text-muted/40 focus:border-foreground"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyPromo}
+                      className="border border-white/10 px-4 py-2 font-sans text-[9px] uppercase tracking-[0.2em] text-foreground hover:border-foreground"
+                    >
+                      Apply
+                    </button>
                   </div>
+                  <p className={`mt-3 font-sans text-[9px] uppercase tracking-[0.18em] ${pricing.promo.isApplied ? "text-emerald-300" : "text-muted"}`}>
+                    {pricing.promo.message}
+                  </p>
                 </div>
-                
+
+                <div className="mb-6 space-y-3 font-sans text-[10px] uppercase tracking-[0.25em]">
+                  <div className="flex justify-between text-muted"><span>Subtotal</span><span>RM{pricing.subtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-muted"><span>Promo</span><span>-RM{pricing.discount.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-muted"><span>Estimated tax</span><span>RM{pricing.tax.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-muted"><span>Shipping</span><span>{pricing.shipping === 0 ? "Included" : `RM${pricing.shipping.toFixed(2)}`}</span></div>
+                  <div className="flex justify-between border-t border-white/10 pt-4 text-foreground">
+                    <span>Estimated Total</span><span>RM{pricing.total.toFixed(2)}</span>
+                  </div>
+                  <p className="pt-1 text-[8px] leading-relaxed text-muted">Final taxes, discounts, and payment authorization are confirmed by Shopify checkout in production.</p>
+                </div>
+
                 <MagneticButton
-                  onClick={handleCheckout}
-                  className={`w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
+                  onClick={handlePrototypeCheckout}
+                  className={`mb-4 w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
                   <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-between w-full px-4">
-                    <span>Proceed to Shopify Checkout</span>
+                    <span>Continue to Checkout Simulation</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
+                  </span>
+                </MagneticButton>
+                 
+                <MagneticButton
+                  onClick={handleCheckout}
+                  className={`w-full group relative border border-white/20 text-foreground overflow-hidden uppercase tracking-[0.2em] py-5 font-sans text-[10px] font-bold flex items-center justify-center gap-4 ${!canUseShopifyCheckout ? 'opacity-50' : ''}`}
+                >
+                  <span className="absolute inset-0 w-full h-full bg-foreground origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
+                  <span className="relative z-10 group-hover:text-background transition-colors duration-500 flex items-center justify-between w-full px-4">
+                    <span>{canUseShopifyCheckout ? "Proceed to Shopify Checkout" : "Shopify handoff requires live variants"}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
                   </span>
                 </MagneticButton>

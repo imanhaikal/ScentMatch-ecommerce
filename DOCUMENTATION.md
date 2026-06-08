@@ -9,9 +9,9 @@ This document serves as the comprehensive reference guide for ScentMatch, detail
 ScentMatch operates on a decoupled **Headless Architecture**, balancing a high-performance frontend with a robust e-commerce backend.
 
 * **Frontend Layer:** Next.js (React 19) utilizing the App Router. Housed under the `scentmatch-web` workspace, it focuses on delivering a cinematic, mobile-first experience targeting Gen Z/Millennials.
-* **Backend E-Commerce Engine:** WooCommerce (built on WordPress) serves as the primary engine for catalog management, cart operations, secure checkout, and order management.
-* **Vendor Aggregator (B2B):** Integrates a multi-vendor plugin (e.g., Dokan) on top of WooCommerce to handle local artisan onboarding, product mapping, and automated commission splitting (15-20%).
-* **ScentMatch Core Logic:** A custom rules engine (via Next.js serverless routes or Gravity Forms backend routing) processes the multi-step interactive Scent Quiz. It dynamically calculates user preferences against database scent tags to return fragrance recommendations with >70% mathematical similarity.
+* **Backend E-Commerce Engine:** Shopify Storefront API serves the prototype catalog/cart layer, with Shopify checkout handling secure production payment authorization.
+* **Vendor Aggregator (B2B):** Next.js prototype routes demonstrate local artisan onboarding, scent mapping, and automated commission splitting (15-20%) without requiring a live marketplace backend.
+* **ScentMatch Core Logic:** A custom Next.js route (`POST /api/scentmatch/calculate`) processes the multi-step interactive Scent Quiz. It calculates user preferences against product scent tags to return scored fragrance recommendations or curated fallbacks.
 * **Analytics Layer:** Native integration with Google Analytics 4 (GA4) for tracking crucial e-commerce funnels like quiz drop-off rates and match conversion rates.
 
 ---
@@ -35,9 +35,9 @@ The platform strictly enforces the **"Cinematic Minimalism"** aesthetic to act a
 * **Accessibility:** Implements `prefers-reduced-motion` fallbacks. Custom silver focus rings (`:focus-visible`) replace standard browser outlines to preserve cinematic immersion without sacrificing a11y.
 
 ### 2.4 State Management
-* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, subtotal calculation, and simulated checkout flow orchestration without prop drilling.
-* **Quiz State:** Managed via local component state in `page.tsx` ensuring the multi-step quiz logic avoids triggering cascading Virtual DOM updates globally.
-* **Persistence:** Mid-quiz progress will be synced to `sessionStorage` to recover states seamlessly upon accidental browser reloads (Implementation Pending).
+* **Cart State:** Managed via Zustand (`useCartStore.ts`) to handle cart drawer visibility, item quantities, Shopify cart metadata, and local checkout simulation without prop drilling.
+* **Quiz State:** Managed via local component state in `HomeClient.tsx`, with API-backed result calculation and guarded GA4 funnel events.
+* **Persistence:** Mid-quiz progress and local order confirmations are synced to versioned `sessionStorage` keys for demo recovery.
 
 ---
 
@@ -66,16 +66,16 @@ The Next.js App Router codebase (`/scentmatch-web/src`) follows a feature-based 
 
 ## 4. Backend Integrations & API Contracts
 
-The Next.js frontend interacts with the WooCommerce headless backend using standard REST or GraphQL endpoints.
+The Next.js frontend interacts with Shopify Storefront API plus local App Router prototype endpoints.
 
-* **`GET /api/catalog/products`**
-  Fetches inventory. Requires parameters to retrieve high-res imagery, pricing, and tag arrays differentiating `In-House` from `Artisan Brand` items.
+* **Shopify Storefront product queries**
+  Fetch inventory, images, pricing, variants, vendor/artisan metadata, concentration, and scent-note metafields. Local fallback data is used when Shopify environment variables are absent.
 * **`POST /api/scentmatch/calculate`**
   **Payload:** Quiz selections (e.g., environment, aesthetic, intensity).
   **Action:** Executes the >70% similarity match threshold logic.
-  **Response:** Array of matched WooCommerce Product IDs. If 0 matches, triggers a curated fallback payload ("Curated Discoveries").
+  **Response:** Scored Shopify/local product matches. If no score passes the threshold, returns a curated fallback payload ("Curated Discoveries").
 * **`POST /api/vendor/onboard`**
-  Handles B2B artisan registration and bridges to the Dokan/vendor portal.
+  Handles B2B artisan registration for the prototype and returns a vendor application reference.
 * **`POST /api/feedback/rate`**
   Triggered 14 days post-delivery. Sends user 1-5 star ratings to adjust the weights of the matching algorithm.
 
@@ -83,7 +83,7 @@ The Next.js frontend interacts with the WooCommerce headless backend using stand
 
 ## 5. Database Schema
 
-Key entities mapped within the WooCommerce backend to support the distinct ScentMatch feature set:
+Key entities mapped within Shopify metafields and local prototype data to support the distinct ScentMatch feature set:
 
 ### Product / Scent Profile Model
 * `product_id` (Primary Key)
@@ -116,13 +116,13 @@ Key entities mapped within the WooCommerce backend to support the distinct Scent
 ### Frontend (Next.js via Vercel)
 1. Link the `scentmatch-web` directory to a Vercel project.
 2. **Environment Variables:**
-   * `NEXT_PUBLIC_API_URL` -> Base URL of the headless WooCommerce instance.
-   * `NEXT_PUBLIC_GA_MEASUREMENT_ID` -> GA4 identifier.
-   * `WOOCOMMERCE_CONSUMER_KEY` & `WOOCOMMERCE_CONSUMER_SECRET` -> Read/Write tokens (store securely).
+   * `SHOPIFY_STORE_DOMAIN` -> Shopify store domain.
+   * `SHOPIFY_STOREFRONT_ACCESS_TOKEN` -> Shopify Storefront access token.
+   * `NEXT_PUBLIC_GA_MEASUREMENT_ID` -> GA4 identifier. `NEXT_PUBLIC_GA_ID` remains a legacy fallback.
 3. Ensure Build Command is `npm run build` and Output Directory is `.next`.
 
-### Backend (WordPress / WooCommerce)
-1. Deploy a managed WordPress environment optimized for API throughput.
-2. Install standard plugins: **WooCommerce**, **Dokan Multivendor** (or equivalent), and **WPGraphQL** (if utilizing GraphQL over REST).
-3. Install CORS plugins or add filters in `functions.php` to accept headless requests exclusively from the Vercel production domain.
-4. Ensure SSL/TLS is active to facilitate secure payment tokenization. Data regarding credit cards must bypass ScentMatch databases directly to gateways (Stripe/FPX).
+### Backend (Shopify + Next.js Prototype Routes)
+1. Configure Shopify products, variants, images, and scent-note metafields.
+2. Add Storefront API environment variables to Vercel.
+3. Confirm Shopify checkout is reachable from `/api/cart/create` cart creation.
+4. Use local routes for quiz matching, vendor onboarding, and checkout simulation evidence.

@@ -46,9 +46,9 @@ The system shall support four primary user roles:
 ---
 
 ## 5. System Architecture & Platform
-* **Base Platform:** WooCommerce (Built on WordPress) or Shopify. *(Note: WooCommerce is recommended for this prototype as it allows extensive backend customization for the matching logic and easy integration of multi-vendor plugins without high monthly fees).*
-* **Multi-Vendor Architecture:** Integration of a plugin (e.g., Dokan Multivendor for WooCommerce) to handle the B2B aggregator aspect.
-* **Logic Integration:** A custom-built conditional logic form (e.g., using Gravity Forms with calculation routing or Typeform API) to handle the Scent Quiz and dynamically display specific WooCommerce product IDs.
+* **Base Platform:** Shopify Storefront API is the current prototype commerce platform. Shopify checkout handles secure payment handoff, while local Next.js routes provide evaluation-ready simulations.
+* **Multi-Vendor Architecture:** Prototype vendor onboarding and dashboard routes demonstrate the B2B aggregator model, scent mapping, and commission tracking.
+* **Logic Integration:** `POST /api/scentmatch/calculate` handles the Scent Quiz and dynamically returns scored Shopify/local product matches.
 
 ---
 

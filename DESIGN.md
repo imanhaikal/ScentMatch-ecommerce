@@ -3,9 +3,9 @@
 ## 1. High-Level System Architecture
 ScentMatch operates on a decoupled Headless Architecture to balance a high-performance, cinematic frontend with a robust, extensible e-commerce backend:
 - **Frontend Layer:** Next.js (React 19) powered by Tailwind CSS and Framer Motion, housed under the `scentmatch-web` workspace. The frontend strictly follows Headless UI patterns, ensuring 100% functional parity across mobile, tablet, and desktop views (Mobile-First targeting Gen Z).
-- **Backend E-Commerce Engine:** WooCommerce (WordPress) providing the baseline capability for catalog, cart, checkout, and order management.
-- **Vendor Aggregator (B2B):** Integration with multi-vendor plugins (e.g., Dokan) to handle B2B features, such as vendor onboarding and automated 15-20% commission splitting.
-- **ScentMatch Core Logic:** A custom logic engine (e.g., Gravity Forms or a custom Next.js serverless route) to process the multi-step interactive Scent Quiz and return product recommendations matching >70% mathematical similarity based on fragrance notes.
+- **Backend E-Commerce Engine:** Shopify Storefront API provides product/catalog/cart creation, while Shopify checkout remains the secure production payment layer.
+- **Vendor Aggregator (B2B):** Next.js prototype routes demonstrate vendor onboarding, scent mapping, sales, and automated 15-20% commission splitting.
+- **ScentMatch Core Logic:** A custom Next.js route processes the multi-step interactive Scent Quiz and returns product recommendations matching >70% mathematical similarity based on fragrance notes.
 - **Analytics:** Integrated Google Analytics 4 (GA4) tracking to measure key funnels like Quiz Drop-off Rate and Match Conversion Rate.
 
 ## 2. UI/UX Design Principles
@@ -27,21 +27,20 @@ The project strictly enforces the "Avant-Garde UI Designer" role. The interface 
   - Active quiz components utilize strict staggered animation trees (using Framer Motion's `AnimatePresence`) ensuring that DOM mounting and unmounting remains hyper-fluid.
 
 ## 4. API Endpoints & Contracts (Headless Integration)
-To effectively interface the React frontend with the WooCommerce backend, the following core REST/GraphQL endpoints are conceptualized:
-- **`GET /api/catalog/products`** 
-  - Fetches product data. Requires specialized parameters returning high-res images, pricing, and tag fields (`In-House` vs. `Artisan Brand`). 
-  - *Response subset:* `id`, `name`, `brand`, `notes: { top, heart, base }`, `imageUrl`, `price`.
+To effectively interface the React frontend with Shopify and local prototype logic, the following core endpoints are used:
+- **Shopify Storefront product queries** 
+  - Fetch product data with high-res images, variants, pricing, vendor/artisan fields, concentration, and scent notes.
 - **`POST /api/scentmatch/calculate`**
   - **Payload:** User quiz selections (e.g., `{ "environment": "...", "aesthetic": "...", "intensity": "..." }`).
   - **Action:** Triggers the matching algorithm. 
   - **Response:** Array of specific product IDs yielding a >70% similarity match, or a fallback payload for a "Curated Discoveries" state if zero matches are found.
 - **`POST /api/vendor/onboard`**
-  - Submits artisan brand applications to the B2B portal.
+  - Submits artisan brand applications to the B2B prototype portal and returns a local reference.
 - **`POST /api/feedback/rate`**
   - Collects post-purchase feedback (1-5 stars) dynamically adjusting future algorithm weighting.
 
 ## 5. Database Schema & Data Models
-Key data modeling required within the WooCommerce backend to support the ScentMatch custom logic:
+Key data modeling required within Shopify metafields and the local prototype to support the ScentMatch custom logic:
 
 - **Product / Scent Profile Model:**
   - `product_id` (PK)
