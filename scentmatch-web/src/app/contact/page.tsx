@@ -60,6 +60,7 @@ export default function ContactPage() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                aria-live="polite"
                 className="h-full flex flex-col items-center justify-center text-center p-12 bg-surface border border-white/5"
               >
                 <h3 className="font-cormorant text-3xl italic text-foreground mb-4">Received</h3>
@@ -67,28 +68,38 @@ export default function ContactPage() {
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-                <input 
-                  type="text" 
-                  required
-                  placeholder="Name" 
-                  className="w-full bg-transparent border-b border-white/20 pb-4 font-sans text-xs tracking-widest uppercase placeholder:text-muted focus:outline-none focus:border-foreground transition-colors rounded-none"
-                />
-                <input 
-                  type="email" 
-                  required
-                  placeholder="Email" 
-                  className="w-full bg-transparent border-b border-white/20 pb-4 font-sans text-xs tracking-widest uppercase placeholder:text-muted focus:outline-none focus:border-foreground transition-colors rounded-none"
-                />
-                <div className="relative">
-                  <textarea 
+                <label className="block">
+                  <span className="mb-3 block font-sans text-[10px] uppercase tracking-[0.25em] text-muted">Name</span>
+                  <input 
+                    type="text" 
+                    name="name"
+                    autoComplete="name"
                     required
-                    placeholder="Message" 
+                    className="w-full bg-transparent border-b border-white/20 pb-4 font-sans text-xs tracking-widest uppercase placeholder:text-muted focus:outline-none focus:border-foreground transition-colors rounded-none"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-3 block font-sans text-[10px] uppercase tracking-[0.25em] text-muted">Email</span>
+                  <input 
+                    type="email" 
+                    name="email"
+                    autoComplete="email"
+                    required
+                    className="w-full bg-transparent border-b border-white/20 pb-4 font-sans text-xs tracking-widest uppercase placeholder:text-muted focus:outline-none focus:border-foreground transition-colors rounded-none"
+                  />
+                </label>
+                <div className="relative">
+                  <label htmlFor="contact-message" className="mb-3 block font-sans text-[10px] uppercase tracking-[0.25em] text-muted">Message</label>
+                  <textarea 
+                    id="contact-message"
+                    name="message"
+                    required
                     rows={4}
                     className="w-full bg-transparent border-b border-white/20 pb-4 font-sans text-xs tracking-widest uppercase placeholder:text-muted focus:outline-none focus:border-foreground transition-colors resize-none rounded-none"
                   ></textarea>
                 </div>
                 
-                <MagneticButton className="w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-5 font-sans text-xs font-bold flex items-center justify-center mt-4">
+                <MagneticButton type="submit" className="w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-5 font-sans text-xs font-bold flex items-center justify-center mt-4">
                   <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
                   <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 w-full px-4 text-center">
                     Transmit

@@ -40,19 +40,22 @@ export function SupportChatbot() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[60] font-sans">
+    <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-[60] font-sans">
       <AnimatePresence>
         {open ? (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="concierge-chat-title"
             className="mb-4 w-[min(22rem,calc(100vw-3rem))] border border-white/10 bg-background/95 p-5 shadow-2xl backdrop-blur-2xl"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-muted">Concierge Bot</p>
-                <h2 className="mt-2 font-cormorant text-3xl italic text-foreground">Ask the atelier</h2>
+                <h2 id="concierge-chat-title" className="mt-2 font-cormorant text-3xl italic text-foreground">Ask the atelier</h2>
               </div>
               <button type="button" aria-label="Close concierge chat" onClick={() => setOpen(false)} className="text-muted hover:text-foreground">
                 <X className="h-4 w-4" />

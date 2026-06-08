@@ -35,7 +35,7 @@ export default function SignupPage() {
             Register
           </h1>
           <p className="text-muted text-sm tracking-widest uppercase">
-            Curate your signature collection
+            Prototype registration for your signature collection
           </p>
         </div>
 
@@ -44,6 +44,8 @@ export default function SignupPage() {
             <input
               type="text"
               id="name"
+              name="name"
+              autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -62,6 +64,8 @@ export default function SignupPage() {
             <input
               type="email"
               id="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -80,6 +84,8 @@ export default function SignupPage() {
             <input
               type="password"
               id="password"
+              name="password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -99,7 +105,7 @@ export default function SignupPage() {
               type="submit"
               className="w-full bg-foreground text-background py-5 text-sm tracking-[0.2em] uppercase hover:bg-white/90 transition-colors"
             >
-              Create Account
+              Create Prototype Account
             </button>
 
             <div className="flex items-center justify-center space-x-4 pt-4">

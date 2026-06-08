@@ -11,6 +11,7 @@ import Link from "next/link";
 import type { ScentProduct } from "@/lib/shopify/types";
 import { SiteHeader } from "@/components/SiteHeader";
 import { trackEvent } from "@/lib/analytics";
+import { OptimizedProductImage } from "@/components/OptimizedProductImage";
 
 export default function ProductDetailClient({ product, recommendations }: { product: ScentProduct; recommendations: ScentProduct[] }) {
   const router = useRouter();
@@ -64,16 +65,22 @@ export default function ProductDetailClient({ product, recommendations }: { prod
             className="w-full h-[60vh] md:h-[80vh] bg-surface relative overflow-hidden group"
           >
             <AnimatePresence mode="wait">
-              <motion.img
+              <motion.div
                 key={activeImage}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
-                src={product.images[activeImage]}
-                alt={product.name}
-                className="w-full h-full object-cover mix-blend-luminosity opacity-90 group-hover:mix-blend-normal group-hover:scale-105 transition-all duration-1000"
-              />
+                className="absolute inset-0"
+              >
+                <OptimizedProductImage
+                  src={product.images[activeImage]}
+                  alt={product.name}
+                  className="object-cover mix-blend-luminosity opacity-90 transition-transform duration-1000 group-hover:scale-105 group-hover:mix-blend-normal"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  preload={activeImage === 0}
+                />
+              </motion.div>
             </AnimatePresence>
           </motion.div>
           
@@ -83,9 +90,11 @@ export default function ProductDetailClient({ product, recommendations }: { prod
                 <button 
                   key={idx} 
                   onClick={() => setActiveImage(idx)}
-                  className={`w-24 h-32 bg-surface overflow-hidden border transition-colors duration-300 ${activeImage === idx ? 'border-foreground' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                  aria-label={`Show ${product.name} image ${idx + 1}`}
+                  aria-pressed={activeImage === idx}
+                  className={`relative w-24 h-32 bg-surface overflow-hidden border transition-colors duration-300 ${activeImage === idx ? 'border-foreground' : 'border-transparent opacity-50 hover:opacity-100'}`}
                 >
-                  <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="w-full h-full object-cover mix-blend-luminosity" />
+                  <OptimizedProductImage src={img} alt={`${product.name} thumbnail ${idx + 1}`} className="object-cover mix-blend-luminosity" sizes="6rem" />
                 </button>
               ))}
             </div>
@@ -175,9 +184,9 @@ export default function ProductDetailClient({ product, recommendations }: { prod
                 
                 {canPurchase && (
                   <div className="flex items-center gap-6 border border-white/20 rounded-full px-4 py-2">
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-muted hover:text-foreground transition-colors"><Minus className="w-3 h-3" /></button>
-                    <span className="font-sans text-xs tracking-widest">{quantity}</span>
-                    <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="text-muted hover:text-foreground transition-colors"><Plus className="w-3 h-3" /></button>
+                    <button type="button" aria-label={`Decrease quantity for ${product.name}`} onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-muted hover:text-foreground transition-colors"><Minus className="w-3 h-3" /></button>
+                    <span className="font-sans text-xs tracking-widest" aria-live="polite">{quantity}</span>
+                    <button type="button" aria-label={`Increase quantity for ${product.name}`} onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} className="text-muted hover:text-foreground transition-colors"><Plus className="w-3 h-3" /></button>
                   </div>
                 )}
               </div>
@@ -213,7 +222,7 @@ export default function ProductDetailClient({ product, recommendations }: { prod
             {recommendations.map((rec) => (
               <div key={rec.id} className="group flex flex-col">
                 <Link href={`/product/${rec.handle}`} className="block relative overflow-hidden bg-surface aspect-[3/4] mb-6">
-                  <img src={rec.images[0]} alt={rec.name} className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:scale-105 group-hover:opacity-100 transition-all duration-1000" />
+                  <OptimizedProductImage src={rec.images[0]} alt={rec.name} className="object-cover mix-blend-luminosity opacity-80 transition-transform duration-1000 group-hover:scale-105 group-hover:mix-blend-normal group-hover:opacity-100" sizes="(max-width: 768px) 100vw, 33vw" />
                 </Link>
                 <div className="flex justify-between items-start">
                   <div>

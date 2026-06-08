@@ -12,6 +12,7 @@ import { Suspense } from "react";
 import type { ScentCategory, ScentProduct } from "@/lib/shopify/types";
 import { SiteHeader } from "@/components/SiteHeader";
 import { trackEvent } from "@/lib/analytics";
+import { OptimizedProductImage } from "@/components/OptimizedProductImage";
 
 interface ShopClientProps {
   products: ScentProduct[];
@@ -151,20 +152,23 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
 
             {/* Search Input - Avant Garde Large */}
             <div className="relative group">
+              <label htmlFor="search-input" className="sr-only">Search fragrance archive</label>
               <input
                 id="search-input"
+                name="q"
                 type="text"
+                autoComplete="off"
                 placeholder="SEARCH ARCHIVE"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   if (e.target.value.trim()) trackEvent("shop_search", { query: e.target.value.trim() });
                 }}
-                className="w-full bg-transparent border-b-2 border-white/20 pb-4 font-sans text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted/30 focus:outline-none focus:border-foreground transition-all rounded-none"
+                className="w-full bg-transparent border-b-2 border-white/20 pb-4 font-sans text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted/30 focus:outline-none focus:border-foreground transition-colors rounded-none"
               />
               <Search className="absolute right-0 top-1/2 -translate-y-1/2 w-5 h-5 text-muted group-focus-within:text-foreground transition-colors pointer-events-none" />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-8 top-1/2 -translate-y-1/2 text-muted hover:text-foreground bg-background pl-2">
+                <button type="button" aria-label="Clear archive search" onClick={() => setSearchQuery("")} className="absolute right-8 top-1/2 -translate-y-1/2 text-muted hover:text-foreground bg-background pl-2">
                   <X className="w-5 h-5" />
                 </button>
               )}
@@ -175,6 +179,7 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
               <div className="flex flex-col gap-4">
                 {categories.map((cat, idx) => (
                   <button
+                    type="button"
                     key={cat}
                     onClick={() => handleCategorySelect(cat)}
                     className={`text-left group flex items-center gap-6 transition-all duration-500`}
@@ -193,7 +198,10 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
             {/* Mobile Filter Toggle */}
             <div className="lg:hidden">
               <button
+                type="button"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
+                aria-expanded={isFilterOpen}
+                aria-controls="mobile-concentration-filter"
                 className="flex items-center justify-between w-full border-b border-white/20 pb-4 font-sans text-xs tracking-[0.2em] uppercase"
               >
                 <span>Concentration</span>
@@ -205,10 +213,12 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
+                    id="mobile-concentration-filter"
                     className="overflow-hidden flex flex-col gap-4 pt-6"
                   >
                     {categories.map((cat, idx) => (
                       <button
+                        type="button"
                         key={cat}
                         onClick={() => handleCategorySelect(cat)}
                         className={`text-left font-cormorant text-3xl transition-all duration-300 ${selectedCategory === cat ? 'text-foreground italic' : 'text-muted'}`}
@@ -250,12 +260,12 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
                     >
                       <TiltCard className="w-full rounded-none">
                         <div className="relative w-full h-[65vh] overflow-hidden bg-surface group">
-                          <Link href={`/product/${prod.handle}`}>
-                            <img
+                          <Link href={`/product/${prod.handle}`} className="relative block h-full w-full">
+                            <OptimizedProductImage
                               src={prod.images[0]}
                               alt={prod.name}
-                              className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-1000 ease-[0.76,0,0.24,1] cursor-pointer"
-                              loading="lazy"
+                              className="object-cover opacity-80 mix-blend-luminosity transition-transform duration-1000 ease-[0.76,0,0.24,1] group-hover:scale-105 group-hover:mix-blend-normal"
+                              sizes="(max-width: 768px) 100vw, 50vw"
                             />
                           </Link>
                           
@@ -295,6 +305,7 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
                              openCart();
                           }}
                           disabled={!canPurchase}
+                          aria-label={`Add ${prod.name} to cart`}
                           className={`w-12 h-12 shrink-0 rounded-full border border-white/10 flex items-center justify-center text-foreground transition-colors duration-500 z-10 relative ${canPurchase ? "hover:bg-foreground hover:text-background" : "opacity-30 cursor-not-allowed"}`}
                         >
                           <Plus className="w-4 h-4" />

@@ -55,7 +55,7 @@ function productNode(id: string, handle: string, title: string, concentration = 
   };
 }
 
-function localProduct(id: number) {
+function localProduct(id: number): MockLocalProduct {
   return {
     id: `perfume-${id}`,
     name: `Perfume ${id}`,

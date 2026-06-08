@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
@@ -18,6 +18,8 @@ const navLinks = [
   { name: "Account", path: "/login" },
 ];
 
+const FOCUSABLE_SELECTOR = "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
+
 interface SiteHeaderProps {
   transparentUntilScroll?: boolean;
   showSearch?: boolean;
@@ -29,6 +31,8 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
   const { openCart, items } = useCartStore();
   const [scrolled, setScrolled] = useState(!transparentUntilScroll);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
@@ -49,13 +53,36 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
       }
     };
 
+    const triggerElement = menuButtonRef.current;
     document.body.style.overflow = "hidden";
+    window.setTimeout(() => mobileDrawerRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus(), 0);
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
+      triggerElement?.focus();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [menuOpen]);
+
+  const handleMobileDrawerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") return;
+
+    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+      (element) => element.offsetParent !== null,
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!first || !last) return;
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   const headerChrome = scrolled ? "bg-background/80 backdrop-blur-xl border-b border-white/5" : "bg-transparent border-b border-transparent";
 
@@ -99,8 +126,10 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
           <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
         </Link>
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={openCart}
+          aria-label={`Open cart${totalItems > 0 ? ` with ${totalItems} items` : ""}`}
           className="text-foreground hover:opacity-50 transition-opacity flex items-center gap-2 focus-visible:outline focus-visible:outline-1 focus-visible:outline-foreground"
         >
           <span className="text-xs uppercase tracking-widest font-sans font-medium">Cart</span>
@@ -115,6 +144,7 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
           onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? "Close mobile navigation" : "Open mobile navigation"}
           aria-expanded={menuOpen}
+          aria-controls="mobile-navigation-drawer"
           className="text-foreground hover:opacity-50 transition-opacity ml-1 focus-visible:outline focus-visible:outline-1 focus-visible:outline-foreground"
         >
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -127,7 +157,13 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-3xl px-8 py-32 lg:hidden"
+            id="mobile-navigation-drawer"
+            ref={mobileDrawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            onKeyDown={handleMobileDrawerKeyDown}
+            className="fixed inset-0 z-40 h-dvh overflow-y-auto bg-background/95 backdrop-blur-3xl px-8 py-32 pb-[calc(8rem+env(safe-area-inset-bottom))] lg:hidden"
           >
             <nav aria-label="Mobile navigation" className="flex h-full flex-col justify-between">
               <div className="flex flex-col gap-6">

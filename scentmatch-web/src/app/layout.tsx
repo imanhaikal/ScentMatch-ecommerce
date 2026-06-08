@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
@@ -6,6 +7,7 @@ import { SmoothScroll, Noise, MouseSpotlight } from "@/components/PremiumUI";
 import { CartDrawer } from "@/components/CartDrawer";
 import { PromoBanner } from "@/components/PromoBanner";
 import { SupportChatbot } from "@/components/SupportChatbot";
+import { AnalyticsPageViewTracker } from "@/components/AnalyticsPageViewTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +33,7 @@ export const metadata: Metadata = {
 const gaMeasurementId = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? process.env.NEXT_PUBLIC_GA_ID)?.trim();
 const hasGoogleAnalyticsId =
   Boolean(gaMeasurementId) && gaMeasurementId !== "G-XXXXXXXXXX";
+const activeGaMeasurementId = hasGoogleAnalyticsId ? gaMeasurementId : undefined;
 
 export default function RootLayout({
   children,
@@ -42,20 +45,25 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} antialiased bg-background text-foreground min-h-screen selection:bg-foreground selection:text-background relative`}
       >
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <MouseSpotlight />
         <SmoothScroll>
           <Noise />
           <PromoBanner />
           <CartDrawer />
           <SupportChatbot />
-          {children}
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
         </SmoothScroll>
 
-        {hasGoogleAnalyticsId ? (
+        {activeGaMeasurementId ? (
           <>
             <Script
               strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${activeGaMeasurementId}`}
             />
             <Script
               id="google-analytics"
@@ -65,13 +73,18 @@ export default function RootLayout({
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
-                  gtag('config', '${gaMeasurementId}', {
-                    page_path: window.location.pathname,
+                  gtag('config', '${activeGaMeasurementId}', {
+                    send_page_view: false,
                   });
                 `,
               }}
             />
           </>
+        ) : null}
+        {activeGaMeasurementId ? (
+          <Suspense fallback={null}>
+            <AnalyticsPageViewTracker measurementId={activeGaMeasurementId} />
+          </Suspense>
         ) : null}
       </body>
     </html>

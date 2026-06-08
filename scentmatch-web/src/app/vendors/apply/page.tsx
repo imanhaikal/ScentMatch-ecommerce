@@ -21,28 +21,36 @@ const fields = [
 export default function VendorApplyPage() {
   const [reference, setReference] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
     const formData = new FormData(event.currentTarget);
     const payload = Object.fromEntries(fields.map(([name]) => [name, String(formData.get(name) ?? "")]));
     trackEvent("vendor_application_started", { brand_name: payload.brandName });
 
-    const response = await fetch("/api/vendor/onboard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = (await response.json()) as { reference?: string; error?: string };
+    try {
+      const response = await fetch("/api/vendor/onboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await response.json()) as { reference?: string; error?: string };
 
-    if (!response.ok || !data.reference) {
-      setError(data.error ?? "Unable to submit application.");
-      return;
+      if (!response.ok || !data.reference) {
+        setError(data.error ?? "Unable to submit application.");
+        return;
+      }
+
+      setReference(data.reference);
+      trackEvent("vendor_application_submitted", { reference: data.reference });
+    } catch {
+      setError("Unable to reach the prototype vendor endpoint. Keep the form open and retry during the demo.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setReference(data.reference);
-    setError(null);
-    trackEvent("vendor_application_submitted", { reference: data.reference });
   };
 
   return (
@@ -81,14 +89,15 @@ export default function VendorApplyPage() {
                   <input
                     name={name}
                     type={name === "email" ? "email" : "text"}
+                    autoComplete={name === "email" ? "email" : name === "founder" ? "name" : name === "location" ? "address-level2" : "off"}
                     required
                     className="w-full rounded-none border-b border-white/20 bg-transparent pb-4 text-sm text-foreground outline-none focus:border-foreground"
                   />
                 </label>
               ))}
               {error ? <p className="md:col-span-2 text-xs uppercase tracking-[0.2em] text-red-200">{error}</p> : null}
-              <button type="submit" className="md:col-span-2 flex items-center justify-between bg-foreground px-8 py-6 text-xs font-bold uppercase tracking-[0.2em] text-background">
-                Submit artisan application <ArrowRight className="h-4 w-4" />
+              <button type="submit" disabled={isSubmitting} className="md:col-span-2 flex items-center justify-between bg-foreground px-8 py-6 text-xs font-bold uppercase tracking-[0.2em] text-background disabled:cursor-wait disabled:opacity-70">
+                {isSubmitting ? "Submitting application" : "Submit artisan application"} <ArrowRight className="h-4 w-4" />
               </button>
             </form>
           )}

@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, Minus, Plus, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "./PremiumUI";
 import { calculateCartPricing } from "@/lib/cart/pricing";
 import { trackEvent } from "@/lib/analytics";
+import { OptimizedProductImage } from "@/components/OptimizedProductImage";
 
 const PROMO_STORAGE_KEY = "scentmatch:promo:v1";
+const SHOPIFY_DEMO_ERROR = "Shopify checkout needs live demo products and Storefront API configuration. Use the local checkout simulation for this prototype cart.";
+const FOCUSABLE_SELECTOR = "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
 export const CartDrawer = () => {
   const router = useRouter();
@@ -18,6 +21,9 @@ export const CartDrawer = () => {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [promoInput, setPromoInput] = useState("");
   const [activePromo, setActivePromo] = useState("");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
   const pricing = calculateCartPricing(items, activePromo);
   const canUseShopifyCheckout = items.length > 0 && items.every((item) => item.variantId.startsWith("gid://shopify/ProductVariant/"));
 
@@ -31,9 +37,54 @@ export const CartDrawer = () => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      returnFocusRef.current?.focus();
+      returnFocusRef.current = null;
+      return;
+    }
+
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (checkoutStep !== "processing") closeCart();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [checkoutStep, closeCart, isOpen]);
+
   const handleClose = () => {
     if (checkoutStep === "processing") return; // Prevent closing during processing
     closeCart();
+  };
+
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") return;
+
+    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+      (element) => element.offsetParent !== null,
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!first || !last) return;
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   };
 
   const handleCheckout = async () => {
@@ -58,13 +109,15 @@ export const CartDrawer = () => {
       const payload = (await response.json()) as { cart?: { id: string; checkoutUrl: string }; error?: string };
 
       if (!response.ok || !payload.cart) {
-        throw new Error(payload.error || "Unable to initiate Shopify checkout.");
+        throw new Error(payload.error || SHOPIFY_DEMO_ERROR);
       }
 
       setShopifyCart(payload.cart);
+      trackEvent("shopify_checkout_created", { value: pricing.total, items: items.length });
       window.location.href = payload.cart.checkoutUrl;
     } catch (error) {
-      setCheckoutError(error instanceof Error ? error.message : "Unable to initiate Shopify checkout.");
+      const message = error instanceof Error ? error.message : SHOPIFY_DEMO_ERROR;
+      setCheckoutError(message.includes("SHOPIFY_") || message.includes("Shopify Storefront") ? SHOPIFY_DEMO_ERROR : message);
       setCheckoutStep("cart");
     }
   };
@@ -112,12 +165,16 @@ export const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full md:w-[480px] bg-background border-l border-white/10 z-[101] flex flex-col shadow-2xl"
+            className="fixed top-0 right-0 h-dvh w-full md:w-[480px] bg-background border-l border-white/10 z-[101] flex flex-col shadow-2xl overscroll-contain"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cart-drawer-title"
+            onKeyDown={handleDialogKeyDown}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-8 border-b border-white/5 bg-background z-20">
               <div className="flex flex-col gap-1">
-                <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">
+                <span id="cart-drawer-title" className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">
                   {checkoutStep === "cart" ? "Your Selection" : "Shopify Checkout"}
                 </span>
                 <span className="flex items-center gap-2 font-sans text-[8px] uppercase tracking-widest text-emerald-500">
@@ -125,6 +182,9 @@ export const CartDrawer = () => {
                 </span>
               </div>
               <button
+                ref={closeButtonRef}
+                type="button"
+                aria-label="Close cart"
                 onClick={handleClose}
                 disabled={checkoutStep === "processing"}
                 className="text-foreground/50 hover:text-foreground transition-colors group disabled:opacity-0"
@@ -144,7 +204,7 @@ export const CartDrawer = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.4 }}
-                    className="h-full overflow-y-auto px-8 py-8"
+                    className="h-full overflow-y-auto px-8 py-8 pb-[calc(2rem+env(safe-area-inset-bottom))]"
                   >
                     {items.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
@@ -156,10 +216,11 @@ export const CartDrawer = () => {
                         {items.map((item) => (
                           <div key={item.id} className="flex gap-6 group">
                             <div className="w-24 h-32 bg-surface overflow-hidden relative">
-                              <img
+                              <OptimizedProductImage
                                 src={item.image}
                                 alt={item.name}
-                                className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
+                                className="object-cover mix-blend-luminosity opacity-80 transition-transform duration-700 group-hover:scale-105 group-hover:mix-blend-normal group-hover:opacity-100"
+                                sizes="6rem"
                               />
                             </div>
                             <div className="flex flex-col justify-between flex-1 py-1">
@@ -218,9 +279,9 @@ export const CartDrawer = () => {
                     className="absolute inset-0 bg-background z-50 flex flex-col items-center justify-center p-8 text-center"
                   >
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-16 h-16 border-t border-l border-foreground rounded-full animate-spin mb-8"
+                      animate={shouldReduceMotion ? undefined : { scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={shouldReduceMotion ? undefined : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="w-16 h-16 border-t border-l border-foreground rounded-full motion-safe:animate-spin mb-8"
                     />
                     <h2 className="font-cormorant text-4xl text-foreground italic mb-4 animate-pulse">Opening Checkout</h2>
                     <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-muted">Creating a secure Shopify checkout session</p>
@@ -231,7 +292,7 @@ export const CartDrawer = () => {
 
             {/* Footer */}
             {checkoutStep !== "processing" && (
-              <div className="p-8 border-t border-white/5 bg-background z-20">
+              <div className="p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] border-t border-white/5 bg-background z-20">
                 {checkoutError && (
                   <div className="mb-6 border border-red-500/30 bg-red-500/10 p-4 font-sans text-[10px] uppercase tracking-[0.2em] text-red-200">
                     {checkoutError}
@@ -245,6 +306,7 @@ export const CartDrawer = () => {
                   <div className="flex gap-3">
                     <input
                       id="promo-code"
+                      name="promoCode"
                       value={promoInput}
                       onChange={(event) => setPromoInput(event.target.value)}
                       placeholder="SCENT20"
@@ -276,6 +338,7 @@ export const CartDrawer = () => {
 
                 <MagneticButton
                   onClick={handlePrototypeCheckout}
+                  disabled={items.length === 0}
                   className={`mb-4 w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>

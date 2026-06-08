@@ -38,8 +38,8 @@ This document outlines the chronological phases and specific, actionable tasks r
 ## Phase 4: User Authentication & Customer Portal
 *Objective: Enable personalized experiences, order tracking, and algorithm refinement.*
 
-- [x] **Authentication Flow:** Build the Login (`/login`) and Registration (`/signup`) pages securely interfacing with the backend auth system.
-- [x] **Customer Dashboard (`/account`):** Create the secure area for users to view order history, tracking status, and their saved Scent Profile.
+- [ ] PARTIAL **Authentication Flow:** Login (`/login`) and registration (`/signup`) pages exist with explicit prototype-account copy, but no production auth backend is connected yet.
+- [ ] PARTIAL **Customer Dashboard (`/account`):** Account dashboard demonstrates order history, tracking status, saved Scent Profile, and feedback UI as a prototype simulation rather than a secure backend-backed area.
 - [x] **Trust & Support Pages:** Creating Trust & Support pages (FAQ, Contact, Return Policies).
 - [x] **Post-Purchase Feedback UI:** Account dashboard includes a prototype 14-day match feedback module.
 
@@ -55,10 +55,10 @@ This document outlines the chronological phases and specific, actionable tasks r
 *Objective: Ensure the application meets all non-functional requirements and quality standards.*
 
 - [x] **Link Refinement:** Fixing broken links (e.g. `href='#'`).
-- [ ] **Accessibility (WCAG AAA) Audit:** Verify stark contrast ratios (>7:1), semantic HTML, `aria-live` regions for the quiz, and custom keyboard focus states.
-- [ ] **Performance Optimization:** Implement aggressive image lazy loading, WebP/AVIF formats, and base64 "blur-up" skeletons to ensure sub-3-second load times.
-- [ ] **Animation Refinement:** Add `prefers-reduced-motion` media queries to gracefully degrade animations for users with vestibular disorders.
-- [ ] **End-to-End Testing:** Automated tests pass; final peer/manual funnel screenshots and GA DebugView evidence still require group capture.
+- [ ] PARTIAL **Accessibility (WCAG AAA) Audit:** Code-side accessibility remediation is implemented: skip link, focus-visible styles, dialog semantics, FAQ ARIA, form labels/autocomplete, named controls, and quiz `aria-live`. Formal Lighthouse/axe/WCAG proof still requires browser capture.
+- [ ] PARTIAL **Performance Optimization:** Product/hero/account imagery now uses `next/image`, remote image allowlists, blur placeholders, and lazy/default loading. Lighthouse/performance screenshot evidence is still required before marking complete.
+- [x] **Animation Refinement:** Added `prefers-reduced-motion` CSS and Framer Motion reduced-motion fallbacks for smooth scroll, spotlight, marquee, split text, tilt, quiz spinners, and magnetic buttons.
+- [ ] PARTIAL **End-to-End Testing:** Automated tests and build are part of the verification log; final peer/manual funnel screenshots, GA DebugView evidence, and Shopify handoff proof still require group capture.
 
 ---
 

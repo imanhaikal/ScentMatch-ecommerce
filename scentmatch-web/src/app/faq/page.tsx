@@ -50,9 +50,16 @@ export default function FAQPage() {
           <div className="flex flex-col border-t border-white/10">
             {FAQ_DATA.map((faq, idx) => {
               const isOpen = openIndex === idx;
+              const buttonId = `faq-button-${idx}`;
+              const panelId = `faq-panel-${idx}`;
+
               return (
                 <div key={idx} className="border-b border-white/10">
                   <button 
+                    id={buttonId}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
                     onClick={() => setOpenIndex(isOpen ? null : idx)}
                     className="w-full flex items-center justify-between py-8 group text-left"
                   >
@@ -70,6 +77,9 @@ export default function FAQPage() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
+                        id={panelId}
+                        role="region"
+                        aria-labelledby={buttonId}
                         className="overflow-hidden"
                       >
                         <p className="pb-8 font-sans text-sm md:text-base text-muted tracking-wide leading-relaxed max-w-2xl">

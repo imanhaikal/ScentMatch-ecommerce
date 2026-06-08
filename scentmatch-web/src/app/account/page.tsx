@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { PRODUCTS } from "@/data/products";
 import { SiteHeader } from "@/components/SiteHeader";
+import { OptimizedProductImage } from "@/components/OptimizedProductImage";
 
 // Dummy data
 const user = {
@@ -71,7 +72,10 @@ export default function AccountPage() {
                 Dossier
               </h1>
               <p className="text-muted text-xs tracking-widest uppercase">
-                Account Overview
+                Prototype Account Overview
+              </p>
+              <p className="mt-4 max-w-xs text-xs leading-relaxed text-muted">
+                This dashboard demonstrates saved profiles, order-history UI, and post-purchase feedback without connecting to a production auth backend.
               </p>
             </div>
 
@@ -130,12 +134,7 @@ export default function AccountPage() {
                     {order.items.map((item, index) => (
                       <div key={index} className="flex gap-6 items-center">
                         <div className="w-20 h-24 bg-surface overflow-hidden relative grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
-                            src={item.images[0]} 
-                            alt={item.name} 
-                            className="object-cover w-full h-full"
-                          />
+                          <OptimizedProductImage src={item.images[0]} alt={item.name} className="object-cover" sizes="5rem" />
                         </div>
                         <div>
                           <p className="text-sm text-foreground uppercase tracking-widest mb-1">{item.name}</p>

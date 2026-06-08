@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles, X, ArrowUpRight, Plus } from "lucide-react";
 import { MagneticButton, SplitText, InfiniteMarquee, TiltCard } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
 import { useCartStore } from "@/store/useCartStore";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { ScentProduct } from "@/lib/shopify/types";
 import { SiteHeader } from "@/components/SiteHeader";
 import { trackEvent } from "@/lib/analytics";
 import type { ScentMatchResult } from "@/lib/scentmatch/matcher";
+import { OptimizedProductImage } from "@/components/OptimizedProductImage";
 
 const QUIZ_STORAGE_KEY = "scentmatch:quiz:v1";
 
@@ -50,6 +52,7 @@ const PrimaryButton = ({ children, onClick, className = "" }: { children: React.
 // Hero Section
 const Hero = ({ onQuizStart }: { onQuizStart: () => void }) => {
   const ref = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -60,17 +63,20 @@ const Hero = ({ onQuizStart }: { onQuizStart: () => void }) => {
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
   return (
-    <section ref={ref} className="relative w-full h-screen flex flex-col justify-end pb-24 px-8 md:px-16 overflow-hidden bg-transparent">
+    <section ref={ref} className="relative w-full min-h-[100dvh] flex flex-col justify-end pb-24 px-8 pt-32 md:px-16 overflow-hidden bg-transparent">
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-background/50 z-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-20" />
-        <motion.img
-          style={{ y, scale }}
-          src="/hero-bg2.jpg"
-          alt="ScentMatch Hero"
-          className="absolute inset-0 w-full h-full object-cover opacity-90 origin-bottom z-0"
-          fetchPriority="high"
-        />
+        <motion.div style={shouldReduceMotion ? undefined : { y, scale }} className="absolute inset-0 origin-bottom z-0">
+          <Image
+            src="/hero-bg2.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            preload
+            className="object-cover opacity-90"
+          />
+        </motion.div>
       </div>
 
       <motion.div style={{ opacity }} className="relative z-30 w-full max-w-7xl">
@@ -137,6 +143,25 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<ScentMatchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const firstOptionRef = useRef<HTMLButtonElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    firstOptionRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     try {
@@ -206,13 +231,16 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/90 backdrop-blur-3xl"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-background/90 px-4 py-8 backdrop-blur-3xl md:px-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="scent-quiz-title"
     >
-      <MagneticButton onClick={onClose} className="absolute top-8 right-8 text-foreground opacity-50 hover:opacity-100 transition-opacity">
+      <MagneticButton onClick={onClose} aria-label="Close scent quiz" className="fixed right-5 top-12 z-10 text-foreground opacity-50 transition-opacity hover:opacity-100 md:right-8">
         <X size={28} strokeWidth={1} />
       </MagneticButton>
 
-      <div className="w-full max-w-4xl px-8 md:px-16 relative" aria-live="polite">
+      <div className="relative max-h-[calc(100dvh-4rem)] w-full max-w-4xl overflow-y-auto px-4 py-8 md:px-16" aria-live="polite">
         <AnimatePresence mode="wait">
           {!analyzing && !result && !error && (
             <motion.div
@@ -226,15 +254,16 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               <span className="text-muted font-sans uppercase tracking-[0.3em] mb-12 text-[10px] flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-muted"></span> Phase {step + 1} of {QUIZ_STEPS.length}
               </span>
-              <h2 className="text-4xl md:text-6xl font-cormorant font-light text-foreground mb-20 leading-tight">
+              <h2 id="scent-quiz-title" className="text-4xl md:text-6xl font-cormorant font-light text-foreground mb-10 md:mb-20 leading-tight">
                 {QUIZ_STEPS[step].question}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-surface-hover p-px w-full">
-                {QUIZ_STEPS[step].options.map((opt) => (
+                {QUIZ_STEPS[step].options.map((opt, idx) => (
                   <button
                     key={opt}
+                    ref={idx === 0 ? firstOptionRef : undefined}
                     onClick={() => handleSelect(opt)}
-                    className="bg-background text-foreground p-12 text-lg md:text-2xl font-cormorant font-light transition-all duration-700 ease-[0.76,0,0.24,1] flex items-center justify-between group hover:bg-foreground hover:text-background relative overflow-hidden"
+                    className="bg-background text-foreground p-6 md:p-12 text-lg md:text-2xl font-cormorant font-light transition-colors duration-700 ease-[0.76,0,0.24,1] flex items-center justify-between group hover:bg-foreground hover:text-background relative overflow-hidden"
                   >
                     <span className="relative z-10">{opt}</span>
                     <ArrowUpRight className="w-6 h-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-700 ease-[0.76,0,0.24,1] relative z-10" strokeWidth={1} />
@@ -253,14 +282,14 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               className="flex flex-col items-center justify-center text-center py-20"
             >
               <div className="relative w-32 h-32 mb-12 flex items-center justify-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                  <motion.div
+                  animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+                  transition={shouldReduceMotion ? undefined : { repeat: Infinity, duration: 3, ease: "linear" }}
                   className="absolute inset-0 border border-white/80 border-r-transparent border-b-transparent border-l-transparent rounded-full"
                 />
                 <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                  animate={shouldReduceMotion ? undefined : { rotate: -360 }}
+                  transition={shouldReduceMotion ? undefined : { repeat: Infinity, duration: 4, ease: "linear" }}
                   className="absolute inset-4 border border-white/30 border-t-transparent border-r-transparent border-l-transparent rounded-full"
                 />
                 <Sparkles className="w-6 h-6 text-foreground opacity-50" strokeWidth={1} />
@@ -277,7 +306,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center flex flex-col items-center"
             >
-              <h2 className="text-5xl md:text-7xl font-cormorant text-foreground mb-8 italic">Curator Offline</h2>
+              <h2 id="scent-quiz-title" className="text-5xl md:text-7xl font-cormorant text-foreground mb-8 italic">Curator Offline</h2>
               <p className="text-muted font-sans text-sm tracking-wide max-w-lg leading-relaxed mb-12">{error} Explore the archive while our concierge refines your profile.</p>
               <PrimaryButton onClick={onClose}>Discover Collection</PrimaryButton>
             </motion.div>
@@ -292,12 +321,12 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               className="text-center flex flex-col items-center"
             >
               <span className="text-muted font-sans uppercase tracking-[0.3em] mb-6 text-[10px]">{topMatch.score}% Match Accuracy Found</span>
-              <h2 className="text-5xl md:text-7xl font-cormorant text-foreground mb-16 italic">Your Signature Profile</h2>
+              <h2 id="scent-quiz-title" className="text-5xl md:text-7xl font-cormorant text-foreground mb-16 italic">Your Signature Profile</h2>
               
               <div className="relative p-[1px] w-full max-w-2xl bg-gradient-to-b from-white/20 to-transparent mb-12">
                 <div className="bg-background p-12 flex flex-col md:flex-row items-center gap-12 text-left">
                   <div className="w-40 h-56 relative overflow-hidden bg-surface">
-                    <img src={topMatch.images[0]} className="w-full h-full object-cover scale-110" alt={topMatch.name} loading="lazy" />
+                    <OptimizedProductImage src={topMatch.images[0]} className="object-cover scale-110" alt={topMatch.name} sizes="10rem" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>
                   <div className="flex-1">
@@ -326,7 +355,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
               transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
               className="text-center flex flex-col items-center"
             >
-              <h2 className="text-5xl md:text-7xl font-cormorant text-foreground mb-8 italic">Curated Discoveries</h2>
+              <h2 id="scent-quiz-title" className="text-5xl md:text-7xl font-cormorant text-foreground mb-8 italic">Curated Discoveries</h2>
               <p className="text-muted font-sans text-sm tracking-wide max-w-lg leading-relaxed mb-16">
                 Your profile is exceptionally unique. While our artisans refine your bespoke match, explore these universal signatures crafted for the avant-garde.
               </p>
@@ -334,7 +363,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
                 {result.matches.slice(0, 2).map((match) => (
                   <Link href={`/product/${match.handle}`} key={match.id} className="group cursor-pointer">
                     <div className="h-64 bg-surface w-full mb-6 overflow-hidden relative">
-                      <img src={match.images[0]} alt={match.name} className="h-full w-full object-cover opacity-70 mix-blend-luminosity transition-all duration-700 group-hover:scale-105 group-hover:mix-blend-normal" />
+                      <OptimizedProductImage src={match.images[0]} alt={match.name} className="object-cover opacity-70 mix-blend-luminosity transition-transform duration-700 group-hover:scale-105 group-hover:mix-blend-normal" sizes="(max-width: 768px) 100vw, 24rem" />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 z-10" />
                     </div>
                     <div className="text-left">
@@ -397,12 +426,12 @@ const ProductSection = ({ products }: { products: ScentProduct[] }) => {
             >
               <TiltCard className="w-full rounded-none">
                 <div className={`relative w-full ${prod.height} overflow-hidden bg-surface group`}>
-                  <Link href={`/product/${prod.handle}`}>
-                    <img
+                  <Link href={`/product/${prod.handle}`} className="relative block h-full w-full">
+                    <OptimizedProductImage
                       src={prod.images[0]}
                       alt={prod.name}
-                      className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:scale-105 group-hover:mix-blend-normal transition-all duration-1000 ease-[0.76,0,0.24,1] cursor-pointer"
-                      loading="lazy"
+                      className="object-cover opacity-80 mix-blend-luminosity transition-transform duration-1000 ease-[0.76,0,0.24,1] group-hover:scale-105 group-hover:mix-blend-normal"
+                      sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </Link>
                   
@@ -445,6 +474,7 @@ const ProductSection = ({ products }: { products: ScentProduct[] }) => {
                     useCartStore.getState().openCart();
                   }}
                   disabled={!canPurchase}
+                  aria-label={`Add ${prod.name} to cart`}
                   className={`w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-foreground transition-colors duration-500 z-10 relative ${canPurchase ? "hover:bg-foreground hover:text-background" : "opacity-30 cursor-not-allowed"}`}
                 >
                   <Plus className="w-4 h-4" />

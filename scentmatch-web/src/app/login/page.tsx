@@ -34,7 +34,7 @@ export default function LoginPage() {
             Sign In
           </h1>
           <p className="text-muted text-sm tracking-widest uppercase">
-            Access your olfactory portfolio
+            Prototype access to your olfactory portfolio
           </p>
         </div>
 
@@ -43,6 +43,8 @@ export default function LoginPage() {
             <input
               type="email"
               id="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -61,6 +63,8 @@ export default function LoginPage() {
             <input
               type="password"
               id="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -80,7 +84,7 @@ export default function LoginPage() {
               type="submit"
               className="w-full bg-foreground text-background py-5 text-sm tracking-[0.2em] uppercase hover:bg-white/90 transition-colors"
             >
-              Authenticate
+              Enter Prototype Account
             </button>
 
             <div className="flex items-center justify-center space-x-4 pt-4">

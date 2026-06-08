@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -20,6 +20,8 @@ export default function CheckoutPage() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("Card ending 4242");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const errorRef = useRef<HTMLParagraphElement>(null);
   const promoCode = useSyncExternalStore(
     () => () => undefined,
     () => window.sessionStorage.getItem(PROMO_STORAGE_KEY) ?? "",
@@ -27,8 +29,13 @@ export default function CheckoutPage() {
   );
   const pricing = calculateCartPricing(items, promoCode);
 
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
     const formData = new FormData(event.currentTarget);
 
     try {
@@ -53,6 +60,7 @@ export default function CheckoutPage() {
       router.push("/checkout/success");
     } catch (checkoutError) {
       setError(checkoutError instanceof Error ? checkoutError.message : "Unable to create prototype order.");
+      setIsSubmitting(false);
     }
   };
 
@@ -83,12 +91,12 @@ export default function CheckoutPage() {
             <form onSubmit={handleSubmit} className="space-y-12">
               <CheckoutPanel eyebrow="Step 01" title="Shipping dossier">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <CheckoutInput name="name" label="Full name" />
-                  <CheckoutInput name="email" label="Email" type="email" />
-                  <CheckoutInput name="address" label="Address" className="md:col-span-2" />
-                  <CheckoutInput name="city" label="City" />
-                  <CheckoutInput name="postcode" label="Postcode" />
-                  <CheckoutInput name="country" label="Country" defaultValue="Malaysia" />
+                  <CheckoutInput name="name" label="Full name" autoComplete="name" />
+                  <CheckoutInput name="email" label="Email" type="email" autoComplete="email" />
+                  <CheckoutInput name="address" label="Address" autoComplete="street-address" className="md:col-span-2" />
+                  <CheckoutInput name="city" label="City" autoComplete="address-level2" />
+                  <CheckoutInput name="postcode" label="Postcode" autoComplete="postal-code" />
+                  <CheckoutInput name="country" label="Country" autoComplete="country-name" defaultValue="Malaysia" />
                 </div>
               </CheckoutPanel>
 
@@ -97,12 +105,13 @@ export default function CheckoutPage() {
                   Billing address matches shipping dossier
                   <input
                     type="checkbox"
+                    name="billingSameAsShipping"
                     checked={billingSameAsShipping}
                     onChange={(event) => setBillingSameAsShipping(event.target.checked)}
                     className="h-4 w-4 accent-white"
                   />
                 </label>
-                {!billingSameAsShipping ? <CheckoutInput name="billingAddress" label="Billing address" required={false} /> : null}
+                {!billingSameAsShipping ? <CheckoutInput name="billingAddress" label="Billing address" autoComplete="billing street-address" required={false} /> : null}
               </CheckoutPanel>
 
               <CheckoutPanel eyebrow="Step 03" title="Payment simulation">
@@ -112,6 +121,7 @@ export default function CheckoutPage() {
                       key={method}
                       type="button"
                       onClick={() => setPaymentMethod(method)}
+                      aria-pressed={paymentMethod === method}
                       className={`border p-5 text-left text-[10px] uppercase tracking-[0.2em] transition-colors ${paymentMethod === method ? "border-foreground text-foreground" : "border-white/10 text-muted hover:border-white/30 hover:text-foreground"}`}
                     >
                       {method}
@@ -123,10 +133,10 @@ export default function CheckoutPage() {
                 </p>
               </CheckoutPanel>
 
-              {error ? <p className="border border-red-500/30 bg-red-500/10 p-4 text-xs uppercase tracking-[0.2em] text-red-200">{error}</p> : null}
+              {error ? <p ref={errorRef} tabIndex={-1} className="border border-red-500/30 bg-red-500/10 p-4 text-xs uppercase tracking-[0.2em] text-red-200">{error}</p> : null}
 
-              <button type="submit" className="group flex w-full items-center justify-between bg-foreground px-8 py-6 text-xs font-bold uppercase tracking-[0.2em] text-background">
-                Create local confirmation
+              <button type="submit" disabled={isSubmitting} className="group flex w-full items-center justify-between bg-foreground px-8 py-6 text-xs font-bold uppercase tracking-[0.2em] text-background disabled:cursor-wait disabled:opacity-70">
+                {isSubmitting ? "Creating confirmation" : "Create local confirmation"}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
               </button>
             </form>
@@ -166,7 +176,7 @@ function CheckoutPanel({ eyebrow, title, children }: { eyebrow: string; title: s
   );
 }
 
-function CheckoutInput({ name, label, type = "text", defaultValue = "", className = "", required = true }: { name: string; label: string; type?: string; defaultValue?: string; className?: string; required?: boolean }) {
+function CheckoutInput({ name, label, type = "text", defaultValue = "", className = "", required = true, autoComplete }: { name: string; label: string; type?: string; defaultValue?: string; className?: string; required?: boolean; autoComplete?: string }) {
   return (
     <label className={`block ${className}`}>
       <span className="mb-3 block text-[10px] uppercase tracking-[0.25em] text-muted">{label}</span>
@@ -175,6 +185,7 @@ function CheckoutInput({ name, label, type = "text", defaultValue = "", classNam
         type={type}
         required={required}
         defaultValue={defaultValue}
+        autoComplete={autoComplete}
         className="w-full rounded-none border-b border-white/20 bg-transparent pb-4 text-sm tracking-wide text-foreground outline-none transition-colors focus:border-foreground"
       />
     </label>

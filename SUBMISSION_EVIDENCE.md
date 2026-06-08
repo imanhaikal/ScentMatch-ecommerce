@@ -21,14 +21,18 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 | Area | Evidence |
 | --- | --- |
 | Responsive navigation | `scentmatch-web/src/components/SiteHeader.tsx` |
+| Accessibility/code polish | Skip link, reduced-motion fallbacks, dialog semantics, form labels/autocomplete, FAQ ARIA, and named icon controls in `scentmatch-web/src/app/layout.tsx`, `scentmatch-web/src/app/globals.css`, `scentmatch-web/src/components/PremiumUI.tsx`, `scentmatch-web/src/components/CartDrawer.tsx`, `scentmatch-web/src/app/HomeClient.tsx`, `/faq`, `/contact`, `/login`, `/signup`, `/checkout`, `/vendors/apply` |
+| Optimized media | `next/image` wrapper in `scentmatch-web/src/components/OptimizedProductImage.tsx`, remote patterns in `scentmatch-web/next.config.ts`, and optimized imagery across home, shop, product, cart, and account routes |
 | Cart pricing and promo | `scentmatch-web/src/lib/cart/pricing.ts`, `scentmatch-web/src/components/CartDrawer.tsx` |
 | Checkout simulation | `scentmatch-web/src/app/checkout/page.tsx` |
 | Order confirmation | `scentmatch-web/src/app/checkout/success/page.tsx` |
 | Quiz API and persistence | `scentmatch-web/src/app/api/scentmatch/calculate/route.ts`, `scentmatch-web/src/lib/scentmatch/matcher.ts`, `scentmatch-web/src/app/HomeClient.tsx` |
-| Analytics events | `scentmatch-web/src/lib/analytics.ts`, `scentmatch-web/src/app/layout.tsx` |
+| Analytics events | `scentmatch-web/src/lib/analytics.ts`, `scentmatch-web/src/components/AnalyticsPageViewTracker.tsx`, `scentmatch-web/src/app/layout.tsx` |
+| Shopify handoff readiness | Sanitized cart fallback messaging, `shopify_checkout_started`, and `shopify_checkout_created` events in `scentmatch-web/src/components/CartDrawer.tsx`; env setup documented in `scentmatch-web/.env.example` |
 | Customer support | `scentmatch-web/src/components/SupportChatbot.tsx`, `/faq`, `/contact`, `/returns` |
 | Vendor marketplace | `/vendors/apply`, `/vendor/dashboard`, `scentmatch-web/src/app/api/vendor/onboard/route.ts` |
 | Legal links | `/terms`, `/privacy`, `scentmatch-web/src/components/Footer.tsx` |
+| Presentation source | `PRESENTATION_DECK.md` |
 
 ## Automated Verification Log
 
@@ -38,6 +42,32 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 | 2026-06-08 | `npx tsc --noEmit` | PASS: no TypeScript errors |
 | 2026-06-08 | `npm run lint` | PASS with warnings: existing `<img>` optimization warnings and one `PremiumUI.tsx` unused variable warning |
 | 2026-06-08 | `npm run build` | PASS: compiled successfully and generated 22 app routes |
+| 2026-06-08 | Baseline `npm run test` | PASS: 10 files, 35 tests |
+| 2026-06-08 | Baseline `npx tsc --noEmit` | FAIL before remediation: `src/lib/shopify/products.test.ts` mock product category literals widened to `string` |
+| 2026-06-08 | Baseline `npm run lint` | PASS with 8 warnings: raw `<img>` usage and unused `PremiumUI.tsx` variable |
+| 2026-06-08 | Baseline `npm run build` | PASS: compiled and generated 22 app routes; warning about workspace root inference |
+| 2026-06-08 | `npm run test -- src/lib/analytics.test.ts` | PASS: 1 file, 5 tests after GA DebugView and Shopify checkout-created event coverage |
+| 2026-06-08 | `npx tsc --noEmit` | PASS after remediation: no TypeScript output |
+| 2026-06-08 | `npm run lint` | PASS after remediation: no warnings |
+| 2026-06-08 | Final `npm run test` | PASS: 10 files, 37 tests |
+| 2026-06-08 | Final `npx tsc --noEmit` | PASS: no TypeScript output |
+| 2026-06-08 | Final `npm run lint` | PASS: no warnings |
+| 2026-06-08 | Final `npm run build` | PASS: compiled and generated 22 app routes; still warns about Next.js workspace-root inference from multiple lockfiles |
+
+## Accessibility Audit Status
+
+| Route/Area | Code Evidence | Formal Audit Evidence |
+| --- | --- | --- |
+| Global layout | Skip link, focus-visible styles, reduced-motion CSS, App Router page target | Pending Lighthouse/axe screenshot |
+| Cart and mobile menu | Dialog semantics, Escape handling, body scroll lock, safe-area sizing, named controls | Pending keyboard and screen-reader QA |
+| Quiz modal | Dialog semantics, Escape close, first-option focus, `aria-live`, mobile overflow handling | Pending keyboard and reduced-motion QA |
+| Forms and FAQ | Labels, names, autocomplete metadata, FAQ `aria-expanded`/`aria-controls` | Pending Lighthouse/axe screenshot |
+
+Formal WCAG/Lighthouse/axe evidence still needs to be captured in a browser before marking accessibility fully complete.
+
+## Account Logic Status
+
+The login, signup, account dashboard, order-history UI, saved scent profile, and 14-day feedback module are implemented as prototype simulations. No production auth/order backend has been connected, so the account checklist item remains partial until a real backend/provider is selected, configured, and verified.
 
 ## Manual QA Template
 
@@ -75,6 +105,7 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 | `promo_applied` | `SCENT20` accepted in cart |
 | `checkout_started` | Local checkout simulation begins or submits |
 | `shopify_checkout_started` | Shopify handoff button begins cart creation |
+| `shopify_checkout_created` | Shopify cart API returns a checkout URL before redirect |
 | `purchase_simulated` | Local confirmation route loads an order |
 | `vendor_application_started` | Vendor application submit begins |
 | `vendor_application_submitted` | Vendor API returns a reference |
@@ -83,6 +114,8 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 ## Human Evidence Still Required
 
 - Peer test from someone outside the group, with friction points recorded above.
-- Final presentation deck screenshots/clips.
+- Final presentation artifact or explicit acceptance of `PRESENTATION_DECK.md` as the deliverable.
 - Real GA4 measurement ID configured in deployment and DebugView/dashboard proof captured.
 - Shopify demo environment proof: products, images, cart creation, and checkout URL handoff.
+- Lighthouse/performance screenshot and formal accessibility audit evidence.
+- Final screenshot/clip artifacts for each checklist item above.
