@@ -7,6 +7,7 @@ import { Menu, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "@/components/PremiumUI";
+import { useAccountSession } from "@/hooks/useAccountSession";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -29,11 +30,14 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
   const pathname = usePathname();
   const router = useRouter();
   const { openCart, items } = useCartStore();
+  const { status } = useAccountSession();
   const [scrolled, setScrolled] = useState(!transparentUntilScroll);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+  const accountPath = status === "authenticated" ? "/account" : "/login";
+  const resolvedNavLinks = navLinks.map((item) => (item.name === "Account" ? { ...item, path: accountPath } : item));
 
   useEffect(() => {
     if (!transparentUntilScroll) return;
@@ -122,7 +126,7 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
             <Search className="w-4 h-4" />
           </button>
         ) : null}
-        <Link href="/login" className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
+        <Link href={accountPath} className="text-foreground hover:opacity-50 transition-opacity hidden md:block">
           <span className="text-xs uppercase tracking-widest font-sans font-medium">Account</span>
         </Link>
         <button
@@ -163,11 +167,12 @@ export function SiteHeader({ transparentUntilScroll = false, showSearch = true }
             aria-modal="true"
             aria-label="Mobile navigation"
             onKeyDown={handleMobileDrawerKeyDown}
+            data-lenis-prevent
             className="fixed inset-0 z-40 h-dvh overflow-y-auto bg-background/95 backdrop-blur-3xl px-8 py-32 pb-[calc(8rem+env(safe-area-inset-bottom))] lg:hidden"
           >
             <nav aria-label="Mobile navigation" className="flex h-full flex-col justify-between">
               <div className="flex flex-col gap-6">
-                {navLinks.map((item, index) => (
+                {resolvedNavLinks.map((item, index) => (
                   <motion.div
                     key={item.path}
                     initial={{ opacity: 0, y: 20 }}

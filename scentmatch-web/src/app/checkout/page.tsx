@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     if (error) errorRef.current?.focus();
   }, [error]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     const formData = new FormData(event.currentTarget);
@@ -54,8 +54,23 @@ export default function CheckoutPage() {
         },
       });
 
-      window.sessionStorage.setItem(PROTOTYPE_ORDER_STORAGE_KEY, JSON.stringify(order));
-      trackEvent("checkout_started", { order_reference: order.reference, value: order.pricing.total });
+      let storedOrder = order;
+      const accountOrderResponse = await fetch("/api/account/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order }),
+      });
+
+      if (accountOrderResponse.ok) {
+        const payload = (await accountOrderResponse.json()) as { order?: typeof order };
+        storedOrder = payload.order ?? order;
+      } else if (accountOrderResponse.status !== 401) {
+        const payload = (await accountOrderResponse.json()) as { error?: string };
+        throw new Error(payload.error ?? "Unable to persist account order.");
+      }
+
+      window.sessionStorage.setItem(PROTOTYPE_ORDER_STORAGE_KEY, JSON.stringify(storedOrder));
+      trackEvent("checkout_started", { order_reference: storedOrder.reference, value: storedOrder.pricing.total });
       clearCart();
       router.push("/checkout/success");
     } catch (checkoutError) {

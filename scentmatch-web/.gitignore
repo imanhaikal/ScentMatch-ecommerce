@@ -44,3 +44,6 @@ next-env.d.ts
 .agents/
 .kilocode/
 skills-lock.json
+
+# local account/order demo data
+.scentmatch/

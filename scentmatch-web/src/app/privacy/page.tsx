@@ -5,11 +5,15 @@ import { Footer } from "@/components/Footer";
 const sections = [
   {
     title: "Quiz Preferences",
-    copy: "The scent quiz stores temporary answers in sessionStorage so an interrupted browser session can recover the profile. The prototype does not send those preferences to a customer account backend.",
+    copy: "The scent quiz stores temporary answers in sessionStorage so an interrupted browser session can recover the profile. When you are signed in, the completed profile is also saved to your ScentMatch account backend.",
   },
   {
     title: "Cart And Checkout Data",
-    copy: "Cart items are held in local application state. The checkout simulation writes a temporary order summary to sessionStorage for the confirmation page and avoids collecting real payment credentials.",
+    copy: "Cart items are held in local application state. Guest checkout writes a temporary order summary to sessionStorage; signed-in checkout also stores the order summary in account history and avoids collecting real payment credentials.",
+  },
+  {
+    title: "Account Data",
+    copy: "Login, saved scent profiles, order history, and match feedback are handled by a first-party file-backed demo backend in this repository. A production deployment should replace that persistence layer with a managed database or account provider.",
   },
   {
     title: "Analytics",

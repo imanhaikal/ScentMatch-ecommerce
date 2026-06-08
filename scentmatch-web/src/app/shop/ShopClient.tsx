@@ -140,7 +140,7 @@ function ShopContent({ products, currentPage, hasNextPage, hasPreviousPage, sear
         <div className="max-w-[100rem] mx-auto w-full flex flex-col lg:flex-row gap-16 lg:gap-24 relative">
           
           {/* LEFT: Filters & Search (Sticky on Desktop) */}
-          <aside className="w-full lg:w-1/3 lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain flex flex-col gap-12 z-10 pr-0 lg:pr-12 lg:pb-8">
+          <aside data-lenis-prevent className="w-full lg:w-1/3 lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain flex flex-col gap-12 z-10 pr-0 lg:pr-12 lg:pb-8">
             <div>
               <p className="text-muted font-sans text-[10px] uppercase tracking-[0.4em] mb-6">
                 Discover your signature

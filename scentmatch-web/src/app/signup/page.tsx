@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,12 +10,37 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const errorRef = useRef<HTMLParagraphElement>(null);
   const router = useRouter();
 
-  const handleSignup = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy signup: redirect to account page
-    router.push("/account");
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/account/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) throw new Error(payload.error ?? "Unable to create account.");
+
+      const nextPath = new URLSearchParams(window.location.search).get("next") || "/account";
+      router.push(nextPath.startsWith("/") ? nextPath : "/account");
+      router.refresh();
+    } catch (signupError) {
+      setError(signupError instanceof Error ? signupError.message : "Unable to create account.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -35,7 +60,7 @@ export default function SignupPage() {
             Register
           </h1>
           <p className="text-muted text-sm tracking-widest uppercase">
-            Prototype registration for your signature collection
+            Save your scent profile, orders, and feedback
           </p>
         </div>
 
@@ -101,11 +126,17 @@ export default function SignupPage() {
           </div>
 
           <div className="pt-4 space-y-6">
+            {error ? (
+              <p ref={errorRef} tabIndex={-1} className="border border-red-500/30 bg-red-500/10 p-4 text-xs uppercase tracking-[0.2em] text-red-200">
+                {error}
+              </p>
+            ) : null}
             <button
               type="submit"
-              className="w-full bg-foreground text-background py-5 text-sm tracking-[0.2em] uppercase hover:bg-white/90 transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-foreground text-background py-5 text-sm tracking-[0.2em] uppercase hover:bg-white/90 transition-colors disabled:cursor-wait disabled:opacity-70"
             >
-              Create Prototype Account
+              {isSubmitting ? "Creating Account" : "Create Account"}
             </button>
 
             <div className="flex items-center justify-center space-x-4 pt-4">
@@ -118,7 +149,8 @@ export default function SignupPage() {
               <button
                 type="button"
                 aria-label="Continue with Google"
-                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-foreground hover:border-white/60 transition-colors"
+                disabled
+                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-muted opacity-60 transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
@@ -128,7 +160,8 @@ export default function SignupPage() {
               <button
                 type="button"
                 aria-label="Continue with Facebook"
-                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-foreground hover:border-white/60 transition-colors"
+                disabled
+                className="flex items-center justify-center space-x-3 w-full border border-white/20 bg-transparent py-4 text-xs tracking-widest uppercase text-muted opacity-60 transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7.5v4H10V22h4v-8.5z"/>

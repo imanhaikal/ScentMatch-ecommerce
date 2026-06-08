@@ -26,6 +26,7 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 | Cart pricing and promo | `scentmatch-web/src/lib/cart/pricing.ts`, `scentmatch-web/src/components/CartDrawer.tsx` |
 | Checkout simulation | `scentmatch-web/src/app/checkout/page.tsx` |
 | Order confirmation | `scentmatch-web/src/app/checkout/success/page.tsx` |
+| Account backend | `scentmatch-web/src/lib/account/*`, `scentmatch-web/src/app/api/account/*`, `/login`, `/signup`, `/account` |
 | Quiz API and persistence | `scentmatch-web/src/app/api/scentmatch/calculate/route.ts`, `scentmatch-web/src/lib/scentmatch/matcher.ts`, `scentmatch-web/src/app/HomeClient.tsx` |
 | Analytics events | `scentmatch-web/src/lib/analytics.ts`, `scentmatch-web/src/components/AnalyticsPageViewTracker.tsx`, `scentmatch-web/src/app/layout.tsx` |
 | Shopify handoff readiness | Sanitized cart fallback messaging, `shopify_checkout_started`, and `shopify_checkout_created` events in `scentmatch-web/src/components/CartDrawer.tsx`; env setup documented in `scentmatch-web/.env.example` |
@@ -53,6 +54,11 @@ This file records demo-ready evidence for the Group Project evaluation. Items th
 | 2026-06-08 | Final `npx tsc --noEmit` | PASS: no TypeScript output |
 | 2026-06-08 | Final `npm run lint` | PASS: no warnings |
 | 2026-06-08 | Final `npm run build` | PASS: compiled and generated 22 app routes; still warns about Next.js workspace-root inference from multiple lockfiles |
+| 2026-06-08 | `npm run test -- src/lib/account` | PASS: 6 files, 14 tests for account password/session/store/service/profile/API helpers |
+| 2026-06-08 | Account backend `npm run test` | PASS: 16 files, 51 tests |
+| 2026-06-08 | Account backend `npx tsc --noEmit` | PASS: no TypeScript output |
+| 2026-06-08 | Account backend `npm run lint` | PASS: no warnings |
+| 2026-06-08 | Account backend `npm run build` | PASS: compiled and generated 28 app routes; warning remains only for pre-existing multiple-lockfile workspace-root inference |
 
 ## Accessibility Audit Status
 
@@ -67,7 +73,7 @@ Formal WCAG/Lighthouse/axe evidence still needs to be captured in a browser befo
 
 ## Account Logic Status
 
-The login, signup, account dashboard, order-history UI, saved scent profile, and 14-day feedback module are implemented as prototype simulations. No production auth/order backend has been connected, so the account checklist item remains partial until a real backend/provider is selected, configured, and verified.
+The login, signup, account dashboard, order-history UI, saved scent profile, and 14-day feedback module are connected to first-party account APIs with signed HTTP-only sessions and file-backed demo persistence. This satisfies the functional account-backend requirement for local evaluation; production deployment should replace the file-backed store with a managed database or account provider before multi-instance use.
 
 ## Manual QA Template
 

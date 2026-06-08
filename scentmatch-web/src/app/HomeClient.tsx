@@ -203,6 +203,11 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
         }
 
         setResult(payload);
+        void fetch("/api/account/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ result: payload }),
+        }).catch(() => undefined);
         trackEvent(payload.result === "match" ? "quiz_completed" : "quiz_zero_match", {
           match_count: payload.matches.length,
           top_score: payload.matches[0]?.score ?? 0,
@@ -231,6 +236,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+      data-lenis-prevent
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-background/90 px-4 py-8 backdrop-blur-3xl md:px-8"
       role="dialog"
       aria-modal="true"
@@ -240,7 +246,7 @@ const ScentQuiz = ({ onClose }: { onClose: () => void }) => {
         <X size={28} strokeWidth={1} />
       </MagneticButton>
 
-      <div className="relative max-h-[calc(100dvh-4rem)] w-full max-w-4xl overflow-y-auto px-4 py-8 md:px-16" aria-live="polite">
+      <div data-lenis-prevent className="relative max-h-[calc(100dvh-4rem)] w-full max-w-4xl overflow-y-auto px-4 py-8 md:px-16" aria-live="polite">
         <AnimatePresence mode="wait">
           {!analyzing && !result && !error && (
             <motion.div

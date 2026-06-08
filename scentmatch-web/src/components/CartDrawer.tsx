@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, Minus, Plus, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "./PremiumUI";
 import { calculateCartPricing } from "@/lib/cart/pricing";
@@ -15,7 +15,7 @@ const SHOPIFY_DEMO_ERROR = "Shopify checkout needs live demo products and Storef
 const FOCUSABLE_SELECTOR = "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
 
 export const CartDrawer = () => {
-  const router = useRouter();
+
   const { isOpen, closeCart, items, updateQuantity, removeItem, setShopifyCart } = useCartStore();
   const [checkoutStep, setCheckoutStep] = useState<"cart" | "processing">("cart");
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -134,17 +134,7 @@ export const CartDrawer = () => {
     }
   };
 
-  const handlePrototypeCheckout = () => {
-    if (items.length === 0) return;
 
-    if (pricing.promo.isApplied) {
-      window.sessionStorage.setItem(PROMO_STORAGE_KEY, pricing.promo.code);
-    }
-
-    trackEvent("checkout_started", { checkout_type: "local_simulation", value: pricing.total, items: items.length });
-    closeCart();
-    router.push("/checkout");
-  };
 
   return (
     <AnimatePresence>
@@ -200,6 +190,7 @@ export const CartDrawer = () => {
                 {checkoutStep === "cart" && (
                   <motion.div
                     key="cart-items"
+                    data-lenis-prevent
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
@@ -336,18 +327,7 @@ export const CartDrawer = () => {
                   <p className="pt-1 text-[8px] leading-relaxed text-muted">Final taxes, discounts, and payment authorization are confirmed by Shopify checkout in production.</p>
                 </div>
 
-                <MagneticButton
-                  onClick={handlePrototypeCheckout}
-                  disabled={items.length === 0}
-                  className={`mb-4 w-full group relative bg-foreground text-background overflow-hidden uppercase tracking-[0.2em] py-6 font-sans text-xs font-bold flex items-center justify-center gap-4 ${items.length === 0 ? 'opacity-50 pointer-events-none' : ''}`}
-                >
-                  <span className="absolute inset-0 w-full h-full bg-surface origin-bottom scale-y-0 transition-transform duration-500 ease-[0.76,0,0.24,1] group-hover:scale-y-100"></span>
-                  <span className="relative z-10 group-hover:text-foreground transition-colors duration-500 flex items-center justify-between w-full px-4">
-                    <span>Continue to Checkout Simulation</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
-                  </span>
-                </MagneticButton>
-                 
+
                 <MagneticButton
                   onClick={handleCheckout}
                   className={`w-full group relative border border-white/20 text-foreground overflow-hidden uppercase tracking-[0.2em] py-5 font-sans text-[10px] font-bold flex items-center justify-center gap-4 ${!canUseShopifyCheckout ? 'opacity-50' : ''}`}

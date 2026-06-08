@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Plus, Star, Minus } from "lucide-react";
+import { ArrowLeft, Plus, Star, Minus, Info } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { MagneticButton } from "@/components/PremiumUI";
 import { Footer } from "@/components/Footer";
@@ -21,7 +21,7 @@ export default function ProductDetailClient({ product, recommendations }: { prod
   const [quantity, setQuantity] = useState(1);
   const [pricingModel, setPricingModel] = useState<"one-time" | "subscription">("one-time");
   const canPurchase = product.stock > 0 && Boolean(product.variantId);
-  const selectedPrice = pricingModel === "subscription" ? Math.round(product.price * 0.85) : product.price;
+  const selectedPrice = pricingModel === "subscription" ? Math.round(product.price * 0.5) : product.price;
 
   const handleAddToCart = () => {
     if (!canPurchase) return;
@@ -34,7 +34,7 @@ export default function ProductDetailClient({ product, recommendations }: { prod
       addItem({
         id: pricingModel === "subscription" ? `${product.id}:subscription` : product.id,
         variantId: product.variantId,
-        name: pricingModel === "subscription" ? `${product.name} (Curator's Allocation)` : product.name,
+        name: pricingModel === "subscription" ? `${product.name} (3-Month Subscription)` : product.name,
         artisan: product.artisan,
         price: selectedPrice,
         image: product.images[0],
@@ -146,12 +146,22 @@ export default function ProductDetailClient({ product, recommendations }: { prod
                 <label className={`relative flex items-center justify-between p-6 border cursor-pointer group transition-all duration-500 bg-transparent hover:border-white/40 ${pricingModel === "subscription" ? "border-foreground opacity-100" : "border-white/5 opacity-50 hover:opacity-100 grayscale hover:grayscale-0"}`}>
                   <div className="flex items-center gap-6">
                     <div className="w-1.5 h-1.5 bg-transparent border border-muted group-hover:bg-muted transition-colors duration-500" />
-                    <div className="flex flex-col gap-1">
-                      <span className="font-sans text-xs uppercase tracking-widest text-foreground group-hover:translate-x-2 transition-transform duration-500">Curator&apos;s Allocation</span>
+                    <div className="flex flex-col gap-1 z-10">
+                      <div className="flex items-center gap-2 group-hover:translate-x-2 transition-transform duration-500">
+                        <span className="font-sans text-xs uppercase tracking-widest text-foreground">
+                          Subscribe & Save (50%)
+                        </span>
+                        <div className="relative group/tooltip inline-flex items-center">
+                          <Info className="w-3.5 h-3.5 text-muted hover:text-foreground transition-colors cursor-help" />
+                          <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-56 p-3 bg-[#0a0a0a] border border-white/10 text-[11px] text-muted font-sans tracking-wide text-center opacity-0 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:pointer-events-auto transition-opacity duration-300 z-50">
+                            Automatically receive a fresh bottle of this scent every 3 months. Cancel or pause your allocation anytime.
+                          </div>
+                        </div>
+                      </div>
                       <span className="font-cormorant italic text-sm text-muted group-hover:translate-x-2 transition-transform duration-500">Replenish every 3 months</span>
                     </div>
                   </div>
-                  <span className="font-sans text-xs tracking-widest text-foreground">RM{Math.round(product.price * 0.85)}</span>
+                  <span className="font-sans text-xs tracking-widest text-foreground">RM{Math.round(product.price * 0.5)}</span>
                   <input type="radio" name="pricingModel" value="subscription" checked={pricingModel === "subscription"} onChange={() => setPricingModel("subscription")} className="sr-only" />
                   <div className="absolute inset-0 border border-transparent group-hover:border-white/40 pointer-events-none transition-colors" />
                 </label>

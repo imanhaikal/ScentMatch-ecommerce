@@ -87,11 +87,16 @@ export default function CheckoutSuccessPage() {
           )}
 
           <p className="mt-10 border-t border-white/10 pt-8 text-xs leading-relaxed tracking-wide text-muted">
-            Payment credentials are never stored in ScentMatch. Production authorization is completed through Shopify checkout; this local confirmation exists for prototype evaluation and demo continuity.
+            Payment credentials are never stored in ScentMatch. Production authorization is completed through Shopify checkout; signed-in local confirmations are also attached to account order history for demo continuity.
           </p>
-          <Link href="/shop" className="mt-8 block w-fit border-b border-white/30 pb-1 text-xs uppercase tracking-[0.2em] text-foreground hover:border-foreground">
-            Return to collection
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-6">
+            <Link href="/account" className="block w-fit border-b border-white/30 pb-1 text-xs uppercase tracking-[0.2em] text-foreground hover:border-foreground">
+              View account dossier
+            </Link>
+            <Link href="/shop" className="block w-fit border-b border-white/30 pb-1 text-xs uppercase tracking-[0.2em] text-foreground hover:border-foreground">
+              Return to collection
+            </Link>
+          </div>
         </div>
       </motion.section>
       <Footer />
