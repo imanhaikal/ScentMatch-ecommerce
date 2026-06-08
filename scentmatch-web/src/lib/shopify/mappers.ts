@@ -27,7 +27,7 @@ export function mapShopifyProduct(product: ShopifyProductNode): ScentProduct {
     handle: product.handle,
     title: product.title,
     name: product.title,
-    artisan: product.artisan?.value || "ScentMatch",
+    artisan: product.vendor || product.artisan?.value || "ScentMatch",
     price: Number(variant?.price.amount ?? 0),
     currencyCode: variant?.price.currencyCode ?? "MYR",
     images: images.length > 0 ? images : ["/santal-vol-1.jpg"],

@@ -3,6 +3,7 @@ const PRODUCT_FIELDS = `#graphql
     id
     handle
     title
+    vendor
     description
     featuredImage {
       url

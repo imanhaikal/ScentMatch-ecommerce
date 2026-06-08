@@ -48,6 +48,7 @@ export interface ShopifyProductNode {
   id: string;
   handle: string;
   title: string;
+  vendor: string;
   description: string;
   featuredImage: ShopifyImage | null;
   images: {
