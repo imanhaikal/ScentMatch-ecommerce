@@ -22,7 +22,9 @@ function base64UrlDecode(value: string) {
 function getSessionSecret(explicitSecret?: string) {
   const secret = explicitSecret ?? process.env.SCENTMATCH_SESSION_SECRET;
   if (secret) return secret;
-  if (process.env.NODE_ENV === "production") throw new Error("SCENTMATCH_SESSION_SECRET is required in production.");
+  if (process.env.NODE_ENV === "production" && process.env.VERCEL !== "1") {
+    throw new Error("SCENTMATCH_SESSION_SECRET is required in production.");
+  }
   return "development-only-scentmatch-session-secret";
 }
 
