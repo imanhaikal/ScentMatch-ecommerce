@@ -43,7 +43,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background flex flex-col justify-center items-center px-6 relative overflow-hidden pt-24 pb-12">
+    <main className="min-h-screen bg-background flex flex-col items-center px-6 relative overflow-hidden pt-32 pb-12">
       <SiteHeader showSearch={false} />
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[120px] pointer-events-none" />
@@ -52,7 +52,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md z-10"
+        className="w-full max-w-md z-10 my-auto"
       >
         <div className="text-center mb-16">
           <h1 className="text-3xl md:text-4xl font-light tracking-[0.2em] uppercase mb-4 text-foreground">
