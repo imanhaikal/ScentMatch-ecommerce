@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
 import type { AccountDatabase, AccountOrder, OrderFeedback, SavedScentProfile, StoredAccountUser } from "./types";
 
 interface AccountStoreOptions {
@@ -19,7 +20,10 @@ export function normalizeEmail(email: string) {
 }
 
 function getDataPath(dataPath?: string) {
-  return dataPath ?? process.env.SCENTMATCH_ACCOUNT_DATA_PATH ?? ".scentmatch/account-store.json";
+  if (dataPath) return dataPath;
+  if (process.env.SCENTMATCH_ACCOUNT_DATA_PATH) return process.env.SCENTMATCH_ACCOUNT_DATA_PATH;
+  if (process.env.VERCEL === "1") return join(tmpdir(), "scentmatch-account-store.json");
+  return ".scentmatch/account-store.json";
 }
 
 function createAccountId() {
